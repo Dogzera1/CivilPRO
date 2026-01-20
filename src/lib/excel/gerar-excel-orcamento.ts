@@ -10,7 +10,7 @@ interface DadosOrcamento {
   created_at: string;
 }
 
-export function gerarExcelOrcamento(dados: DadosOrcamento): XLSX.Workbook {
+export function gerarExcelOrcamento(dados: DadosOrcamento): XLSX.WorkBook {
   const workbook = XLSX.utils.book_new();
 
   // Planilha 1: Resumo
@@ -54,6 +54,6 @@ export function gerarExcelOrcamento(dados: DadosOrcamento): XLSX.Workbook {
   return workbook;
 }
 
-export function excelToBuffer(workbook: XLSX.Workbook): Buffer {
+export function excelToBuffer(workbook: XLSX.WorkBook): Buffer {
   return Buffer.from(XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }));
 }
