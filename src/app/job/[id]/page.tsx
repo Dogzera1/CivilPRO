@@ -67,7 +67,7 @@ export default function ProcessoDetailPage() {
     };
 
     loadJob();
-  }, [jobId, router, supabase]);
+  }, [processoId, router, supabase]);
 
   if (loading) {
     return (
