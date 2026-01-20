@@ -142,8 +142,8 @@ async function handlePaymentApproved(data: any, supabase: any) {
           ...data,
         },
       })
-      .then(({ error }) => {
-        if (error && !error.message.includes("does not exist")) {
+      .then(({ error }: { error: any }) => {
+        if (error && !error.message?.includes("does not exist")) {
           console.error("[Cakto] Erro ao registrar pagamento:", error);
         }
       });
