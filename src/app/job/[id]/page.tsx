@@ -229,7 +229,7 @@ export default function ProcessoDetailPage() {
                   </>
                 )}
 
-                {job.tipo === "orcamento" && (
+                {processo.tipo === "orcamento" && (
                   <>
                     {dadosProcessados.quantidade_aco && (
                       <div>
