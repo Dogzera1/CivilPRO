@@ -97,8 +97,10 @@ PERPLEXITY_API_KEY=sua-chave-perplexity
 
 # Cakto
 NEXT_PUBLIC_CAKTO_API_URL=https://api.cakto.com.br
-NEXT_PUBLIC_CAKTO_PUBLIC_KEY=sua-chave-publica-cakto
-CAKTO_WEBHOOK_SECRET=seu-secret-webhook-cakto
+NEXT_PUBLIC_CAKTO_PUBLIC_KEY=dsdzaYPQO5SGOLqzXrW6VNFIibRc4TiFtawOSTih
+CAKTO_CLIENT_SECRET=seu-cliente-segredo-cakto-aqui
+CAKTO_WEBHOOK_SECRET=seu-webhook-secret-cakto-aqui
+# ⚠️ IDs dos produtos serão configurados APÓS o deploy (veja CONFIGURAR-PRODUTOS-CAKTO.md)
 NEXT_PUBLIC_CAKTO_PRODUCT_PRO=id-produto-pro-cakto
 NEXT_PUBLIC_CAKTO_PRODUCT_ENTERPRISE=id-produto-enterprise-cakto
 
