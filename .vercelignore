@@ -1,0 +1,9 @@
+# Arquivos que não devem ser enviados para o Vercel
+.env*.local
+.env
+node_modules
+.next
+.vercel
+*.log
+.DS_Store
+Thumbs.db
