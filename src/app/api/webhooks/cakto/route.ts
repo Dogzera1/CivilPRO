@@ -190,9 +190,14 @@ async function handlePaymentFailed(data: any, supabase: any) {
 }
 
 // Permitir apenas POST
+// GET retorna informação sobre o webhook (útil para testes)
 export async function GET() {
   return NextResponse.json(
-    { error: "Método não permitido" },
-    { status: 405 }
+    { 
+      message: "Webhook da Cakto está ativo",
+      method: "Este endpoint aceita apenas requisições POST",
+      status: "Aguardando eventos da Cakto"
+    },
+    { status: 200 }
   );
 }
