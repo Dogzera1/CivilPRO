@@ -19,15 +19,16 @@ const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY || process.env.NEXT_PUBLIC_CLA
 const DEFAULT_CLAUDE_MODEL =
   process.env.CLAUDE_MODEL ||
   process.env.NEXT_PUBLIC_CLAUDE_MODEL ||
-  "claude-3-5-sonnet-latest";
+  // Preferir modelos atuais (Claude 4) e cair para Sonnet 3.5 se necessário
+  "claude-sonnet-4";
 
 const CLAUDE_MODEL_FALLBACKS = [
-  // Preferir aliases mais estáveis
+  // Claude 4 (preferidos)
+  "claude-sonnet-4",
+  "claude-sonnet-4-20250514",
+  // Fallbacks comuns (Claude 3.5)
   "claude-3-5-sonnet-latest",
-  // Fallback para uma versão conhecida (caso o alias esteja indisponível na conta)
-  "claude-3-5-sonnet-20240620",
-  // Último fallback amplamente disponível
-  "claude-3-sonnet-20240229",
+  "claude-3-5-haiku-latest",
 ] as const;
 
 export interface ClaudeMessage {
