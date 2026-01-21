@@ -4,15 +4,13 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function TestAuthPage() {
   const [status, setStatus] = useState<string>("Verificando...");
   const [details, setDetails] = useState<any>(null);
   const supabase = createClient();
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  const router = useRouter();
 
   const checkAuth = async () => {
     try {
@@ -46,9 +44,13 @@ export default function TestAuthPage() {
     }
   };
 
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/login";
+    router.replace("/login");
   };
 
   return (
@@ -72,7 +74,7 @@ export default function TestAuthPage() {
 
           <div className="flex gap-4">
             <Button onClick={checkAuth}>Verificar Novamente</Button>
-            <Button onClick={() => window.location.href = "/dashboard"} variant="outline">
+            <Button onClick={() => router.push("/dashboard")} variant="outline">
               Ir para Dashboard
             </Button>
             {details?.user && (

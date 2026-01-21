@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Processo } from "@/types";
@@ -17,31 +17,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  useEffect(() => {
-    checkAuthAndLoad();
-  }, []);
-
-  const checkAuthAndLoad = async () => {
-    // Verificar autenticação primeiro
-    const { data: { session } } = await supabase.auth.getSession();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    console.log("[Dashboard] Sessão:", session ? "Presente" : "Ausente");
-    console.log("[Dashboard] Usuário:", user ? user.email : "Não encontrado");
-    
-    if (!session && !user) {
-      console.log("[Dashboard] Não autenticado, redirecionando para login...");
-      // Usar window.location para garantir redirecionamento
-      window.location.href = "/login";
-      return;
-    }
-    
-    // Se autenticado, carregar dados
-    await loadUser();
-             await loadProcessos();
-  };
-
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     try {
       // Verificar sessão primeiro
       const { data: { session } } = await supabase.auth.getSession();
@@ -75,9 +51,9 @@ export default function DashboardPage() {
     } catch (err) {
       console.error("Erro ao carregar usuário:", err);
     }
-  };
+  }, [supabase]);
 
-  const loadProcessos = async () => {
+  const loadProcessos = useCallback(async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -98,7 +74,28 @@ export default function DashboardPage() {
       setProcessos(data || []);
     }
     setLoading(false);
-  };
+  }, [supabase]);
+
+  const checkAuthAndLoad = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+
+    console.log("[Dashboard] Sessão:", session ? "Presente" : "Ausente");
+    console.log("[Dashboard] Usuário:", authUser ? authUser.email : "Não encontrado");
+
+    if (!session && !authUser) {
+      console.log("[Dashboard] Não autenticado, redirecionando para login...");
+      router.replace("/login");
+      return;
+    }
+
+    await loadUser();
+    await loadProcessos();
+  }, [loadProcessos, loadUser, router, supabase]);
+
+  useEffect(() => {
+    checkAuthAndLoad();
+  }, [checkAuthAndLoad]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
