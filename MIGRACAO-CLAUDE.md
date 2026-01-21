@@ -9,7 +9,7 @@ A API da Perplexity foi substituída pela API do Claude (Anthropic).
 ### 1. Novo Cliente Claude (`src/lib/ia/claude-client.ts`)
 - ✅ Cliente completo para API do Claude
 - ✅ Suporte a todos os tipos de processamento
-- ✅ Modelo padrão: `claude-3-5-sonnet-20241022`
+- ✅ Modelo padrão: `claude-3-5-sonnet-latest` (com fallback automático)
 - ✅ Mesma interface das funções (compatibilidade mantida)
 
 ### 2. Arquivo Perplexity (`src/lib/ia/perplexity-client.ts`)
@@ -48,7 +48,7 @@ CLAUDE_API_KEY=sua-chave-claude-aqui
 | Header Version | Não necessário | `anthropic-version: 2023-06-01` |
 | System Message | Dentro de `messages` | Parâmetro separado `system` |
 | Resposta | `data.choices[0].message.content` | `data.content[0].text` |
-| Modelo | `sonar` | `claude-3-5-sonnet-20241022` |
+| Modelo | `sonar` | `claude-3-5-sonnet-latest` (fallback: `claude-3-5-sonnet-20240620`, `claude-3-sonnet-20240229`) |
 
 ## ✅ Funcionalidades Mantidas
 

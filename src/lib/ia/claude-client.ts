@@ -16,6 +16,19 @@ import {
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 // Usar variável de ambiente do servidor (não expor no cliente)
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY || process.env.NEXT_PUBLIC_CLAUDE_API_KEY || "";
+const DEFAULT_CLAUDE_MODEL =
+  process.env.CLAUDE_MODEL ||
+  process.env.NEXT_PUBLIC_CLAUDE_MODEL ||
+  "claude-3-5-sonnet-latest";
+
+const CLAUDE_MODEL_FALLBACKS = [
+  // Preferir aliases mais estáveis
+  "claude-3-5-sonnet-latest",
+  // Fallback para uma versão conhecida (caso o alias esteja indisponível na conta)
+  "claude-3-5-sonnet-20240620",
+  // Último fallback amplamente disponível
+  "claude-3-sonnet-20240229",
+] as const;
 
 export interface ClaudeMessage {
   role: "user" | "assistant";
@@ -24,7 +37,7 @@ export interface ClaudeMessage {
 
 export async function callClaude(
   messages: ClaudeMessage[],
-  model: string = "claude-3-5-sonnet-20241022",
+  model: string = DEFAULT_CLAUDE_MODEL,
   system?: string
 ): Promise<string> {
   if (!CLAUDE_API_KEY) {
@@ -35,56 +48,88 @@ export async function callClaude(
     throw new Error("Claude API key não configurada. Verifique CLAUDE_API_KEY no .env.local");
   }
 
-  console.log("[Claude] Chamando API com modelo:", model);
+  const candidates = Array.from(
+    new Set([model, ...CLAUDE_MODEL_FALLBACKS].filter(Boolean))
+  );
+
+  console.log("[Claude] Modelos candidatos:", candidates);
   console.log("[Claude] Mensagens:", messages.length);
 
-  try {
-    const requestBody: any = {
-      model,
-      max_tokens: 4096,
-      messages: messages.map(msg => ({
-        role: msg.role,
-        content: typeof msg.content === "string" ? msg.content : msg.content,
-      })),
-    };
+  let lastError: any = null;
 
-    if (system) {
-      requestBody.system = system;
+  for (const candidateModel of candidates) {
+    try {
+      console.log("[Claude] Chamando API com modelo:", candidateModel);
+
+      const requestBody: any = {
+        model: candidateModel,
+        max_tokens: 4096,
+        messages: messages.map((msg) => ({
+          role: msg.role,
+          content: typeof msg.content === "string" ? msg.content : msg.content,
+        })),
+      };
+
+      if (system) {
+        requestBody.system = system;
+      }
+
+      const response = await fetch(CLAUDE_API_URL, {
+        method: "POST",
+        headers: {
+          "x-api-key": CLAUDE_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log("[Claude] Status da resposta:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("[Claude] Erro da API:", errorText);
+
+        // Se for erro de modelo inexistente, tenta fallback
+        if (
+          response.status === 404 &&
+          (errorText.includes("not_found_error") ||
+            errorText.toLowerCase().includes("model"))
+        ) {
+          lastError = new Error(
+            `Claude API error (model not found): ${response.status} - ${errorText}`
+          );
+          continue;
+        }
+
+        throw new Error(`Claude API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      const content = data.content?.[0]?.text || "";
+      console.log("[Claude] Resposta recebida, tamanho:", content.length);
+
+      if (!content) {
+        console.warn("[Claude] Resposta vazia:", JSON.stringify(data, null, 2));
+      }
+
+      return content;
+    } catch (error: any) {
+      lastError = error;
+      // Se o erro parecer ser de modelo inexistente, tenta fallback
+      if (
+        typeof error?.message === "string" &&
+        error.message.includes("model not found")
+      ) {
+        continue;
+      }
+      // Erros não relacionados a modelo: aborta
+      throw error;
     }
-
-    const response = await fetch(CLAUDE_API_URL, {
-      method: "POST",
-      headers: {
-        "x-api-key": CLAUDE_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    console.log("[Claude] Status da resposta:", response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[Claude] Erro da API:", errorText);
-      throw new Error(`Claude API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    const content = data.content?.[0]?.text || "";
-    console.log("[Claude] Resposta recebida, tamanho:", content.length);
-    
-    if (!content) {
-      console.warn("[Claude] Resposta vazia:", JSON.stringify(data, null, 2));
-    }
-    
-    return content;
-  } catch (error: any) {
-    console.error("[Claude] Erro ao chamar API:", error);
-    console.error("[Claude] Tipo do erro:", error.constructor.name);
-    console.error("[Claude] Mensagem:", error.message);
-    throw error;
   }
+
+  console.error("[Claude] Nenhum modelo candidato funcionou.");
+  throw lastError || new Error("Claude API error: falha ao chamar modelos candidatos");
 }
 
 export async function analisarPlantaRegularizacao(
@@ -124,7 +169,7 @@ export async function analisarPlantaRegularizacao(
 
   const systemPrompt = "Você é um engenheiro civil especialista em regularização de imóveis. Sempre retorne JSON válido conforme solicitado.";
 
-  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
+  const response = await callClaude(messages, DEFAULT_CLAUDE_MODEL, systemPrompt);
   
   // Tentar extrair JSON da resposta
   try {
@@ -205,7 +250,7 @@ export async function gerarOrcamento(
 
   const systemPrompt = "Você é um engenheiro civil especialista em orçamentos e quantitativos. Sempre retorne JSON válido conforme solicitado.";
 
-  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
+  const response = await callClaude(messages, DEFAULT_CLAUDE_MODEL, systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
@@ -258,7 +303,7 @@ export async function gerarPlantaEletrica(
 
   const systemPrompt = "Você é um engenheiro eletricista especialista. Sempre retorne JSON válido conforme solicitado.";
 
-  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
+  const response = await callClaude(messages, DEFAULT_CLAUDE_MODEL, systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
@@ -290,7 +335,7 @@ export async function gerarPlantaHidraulica(
 
   const systemPrompt = "Você é um engenheiro especialista em projetos hidrossanitários. Sempre retorne JSON válido conforme solicitado.";
 
-  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
+  const response = await callClaude(messages, DEFAULT_CLAUDE_MODEL, systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
@@ -322,7 +367,7 @@ export async function gerarLaudo(
 
   const systemPrompt = "Você é um engenheiro civil especialista em laudos técnicos. Sempre retorne JSON válido conforme solicitado.";
 
-  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
+  const response = await callClaude(messages, DEFAULT_CLAUDE_MODEL, systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
@@ -354,7 +399,7 @@ export async function verificarConformidade(
 
   const systemPrompt = "Você é um engenheiro civil especialista em conformidade urbanística. Sempre retorne JSON válido conforme solicitado.";
 
-  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
+  const response = await callClaude(messages, DEFAULT_CLAUDE_MODEL, systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
