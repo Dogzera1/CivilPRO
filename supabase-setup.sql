@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
   nome_completo TEXT,
   cidade TEXT,
   especialidades TEXT[],
-  plano TEXT DEFAULT 'free' CHECK (plano IN ('free', 'pro', 'enterprise')),
+  plano TEXT DEFAULT 'free' CHECK (plano IN ('free', 'pro', 'enterprise', 'admin')),
   jobs_mes_atual INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
