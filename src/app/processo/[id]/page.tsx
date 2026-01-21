@@ -102,7 +102,7 @@ export default function ProcessoDetailPage() {
               Voltar
             </Button>
           </Link>
-          <h1 className="text-xl font-bold">CivilAI Pro</h1>
+          <h1 className="text-xl font-bold">EngenhaAI</h1>
           <div></div>
         </div>
       </header>

@@ -1,49 +1,59 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: oklch(100% 0 0);
-  --color-foreground: oklch(9.8% 0.018 264.7);
+  /* Branding EngenhaAI */
+  --color-background: #ffffff;
+  --color-foreground: #424242;
   --color-card: oklch(100% 0 0);
-  --color-card-foreground: oklch(9.8% 0.018 264.7);
+  --color-card-foreground: #424242;
   --color-popover: oklch(100% 0 0);
-  --color-popover-foreground: oklch(9.8% 0.018 264.7);
-  --color-primary: oklch(60.4% 0.177 264.7);
-  --color-primary-foreground: oklch(98% 0.002 264.7);
-  --color-secondary: oklch(96.1% 0.002 264.7);
-  --color-secondary-foreground: oklch(11.2% 0.018 264.7);
-  --color-muted: oklch(96.1% 0.002 264.7);
-  --color-muted-foreground: oklch(46.9% 0.018 264.7);
-  --color-accent: oklch(96.1% 0.002 264.7);
-  --color-accent-foreground: oklch(11.2% 0.018 264.7);
-  --color-destructive: oklch(60.2% 0.177 0);
-  --color-destructive-foreground: oklch(98% 0.002 264.7);
-  --color-border: oklch(91.4% 0.002 264.7);
-  --color-input: oklch(91.4% 0.002 264.7);
-  --color-ring: oklch(60.4% 0.177 264.7);
+  --color-popover-foreground: #424242;
+
+  /* Primária: Azul Engenharia (#0052CC) */
+  --color-primary: #0052cc;
+  --color-primary-foreground: #ffffff;
+
+  /* Secundária: Verde Inovação (#00C853) */
+  --color-secondary: #00c853;
+  --color-secondary-foreground: #ffffff;
+
+  /* Neutros */
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #616161;
+  --color-accent: #ff6d00;
+  --color-accent-foreground: #ffffff;
+
+  /* Alertas */
+  --color-destructive: #d32f2f;
+  --color-destructive-foreground: #ffffff;
+
+  --color-border: #e5e5e5;
+  --color-input: #e5e5e5;
+  --color-ring: #0052cc;
   --radius: 0.5rem;
 }
 
 @media (prefers-color-scheme: dark) {
   @theme {
-    --color-background: oklch(9.8% 0.018 264.7);
-    --color-foreground: oklch(98% 0.002 264.7);
-    --color-card: oklch(9.8% 0.018 264.7);
-    --color-card-foreground: oklch(98% 0.002 264.7);
-    --color-popover: oklch(9.8% 0.018 264.7);
-    --color-popover-foreground: oklch(98% 0.002 264.7);
-    --color-primary: oklch(59.8% 0.177 264.7);
-    --color-primary-foreground: oklch(11.2% 0.018 264.7);
-    --color-secondary: oklch(17.5% 0.018 264.7);
-    --color-secondary-foreground: oklch(98% 0.002 264.7);
-    --color-muted: oklch(17.5% 0.018 264.7);
-    --color-muted-foreground: oklch(65.1% 0.018 264.7);
-    --color-accent: oklch(17.5% 0.018 264.7);
-    --color-accent-foreground: oklch(98% 0.002 264.7);
-    --color-destructive: oklch(30.6% 0.177 0);
-    --color-destructive-foreground: oklch(98% 0.002 264.7);
-    --color-border: oklch(17.5% 0.018 264.7);
-    --color-input: oklch(17.5% 0.018 264.7);
-    --color-ring: oklch(48% 0.177 264.7);
+    --color-background: #0f172a;
+    --color-foreground: #e5e7eb;
+    --color-card: #111827;
+    --color-card-foreground: #e5e7eb;
+    --color-popover: #111827;
+    --color-popover-foreground: #e5e7eb;
+    --color-primary: #3b82f6;
+    --color-primary-foreground: #0b1220;
+    --color-secondary: #22c55e;
+    --color-secondary-foreground: #0b1220;
+    --color-muted: #111827;
+    --color-muted-foreground: #9ca3af;
+    --color-accent: #fb923c;
+    --color-accent-foreground: #0b1220;
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #0b1220;
+    --color-border: #1f2937;
+    --color-input: #1f2937;
+    --color-ring: #3b82f6;
   }
 }
 
@@ -55,4 +65,13 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2 {
+  font-family: var(--font-poppins), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+code, pre {
+  font-family: var(--font-roboto-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }

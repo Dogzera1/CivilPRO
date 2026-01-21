@@ -86,7 +86,7 @@ export function getCheckoutUrlForPlan(
     cancelUrl: `${baseUrl}/configuracoes?status=cancelled`,
     metadata: {
       plano,
-      source: "civilai-pro",
+      source: "engenhaai",
     },
   });
 }

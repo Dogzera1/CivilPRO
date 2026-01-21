@@ -10,6 +10,7 @@ import { ArrowLeft, Crown, Zap, Building2, Check, ArrowRight, Sparkles } from "l
 import Link from "next/link";
 import { Loading } from "@/components/ui/loading";
 import { getCheckoutUrlForPlan } from "@/lib/cakto/checkout";
+import { track } from "@/lib/marketing/track";
 
 const PLANOS = {
   free: {
@@ -122,6 +123,7 @@ export default function VendasPage() {
         user.email,
         user.nome_completo || undefined
       );
+      track("checkout_start", { plano, source: "landing" });
       window.location.href = checkoutUrl;
     } catch (error: any) {
       alert(`Erro ao iniciar checkout: ${error.message}`);
@@ -133,8 +135,8 @@ export default function VendasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <header className="border-b bg-white/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-br from-background via-white to-muted">
+      <header className="border-b bg-white/70 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/">
             <Button variant="ghost">
@@ -142,7 +144,7 @@ export default function VendasPage() {
               Voltar
             </Button>
           </Link>
-          <h1 className="text-xl font-bold">CivilAI Pro</h1>
+          <h1 className="text-xl font-bold">EngenhaAI</h1>
           {user ? (
             <Link href="/dashboard">
               <Button variant="ghost" size="sm">
@@ -165,16 +167,72 @@ export default function VendasPage() {
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium text-primary">
-              Automação Total para Engenheiros Civis
+              Engenharia Inteligente, Decisões Rápidas
             </span>
           </div>
           <h1 className="mb-4 text-5xl font-bold tracking-tight">
-            Escolha o Plano Ideal
+            Gere laudos técnicos profissionais em 10 minutos
           </h1>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Automatize 80% do seu trabalho burocrático e foque no que realmente importa.
-            Processamento com IA, geração automática de documentos e muito mais.
+            Automatize REURB, memoriais, vistorias e orçamentos com IA. Economize tempo, aumente sua produtividade e
+            mantenha padrão profissional (com revisão do responsável técnico).
           </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link href="/signup">
+              <Button
+                size="lg"
+                onClick={() => track("cta_click", { cta: "hero_trial" })}
+              >
+                Experimente Grátis
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/novo-processo">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => track("cta_click", { cta: "hero_demo" })}
+              >
+                Ver como funciona
+              </Button>
+            </Link>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            <span>Conforme normas (ABNT) e legislação</span>
+            <span>5 processos grátis</span>
+            <span>Sem cartão no plano Free</span>
+          </div>
+        </div>
+
+        {/* Como funciona */}
+        <div className="mb-16 grid gap-6 md:grid-cols-3">
+          <Card className="border-muted/60">
+            <CardHeader>
+              <CardTitle className="text-lg">1) Envie planta e fotos</CardTitle>
+              <CardDescription>PDF, JPG ou PNG. A plataforma organiza e prepara tudo.</CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Dica: imagens nítidas e com cotas visíveis aumentam a precisão.
+            </CardContent>
+          </Card>
+          <Card className="border-muted/60">
+            <CardHeader>
+              <CardTitle className="text-lg">2) IA gera o documento</CardTitle>
+              <CardDescription>Prompts profissionais baseados em normas e prática de mercado.</CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Saída em texto puro (sem markdown) para PDFs limpos e profissionais.
+            </CardContent>
+          </Card>
+          <Card className="border-muted/60">
+            <CardHeader>
+              <CardTitle className="text-lg">3) Revise e entregue</CardTitle>
+              <CardDescription>Você mantém a responsabilidade técnica e o padrão.</CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Gere PDF/Excel e registre suas informações com segurança.
+            </CardContent>
+          </Card>
         </div>
 
         {/* Planos */}

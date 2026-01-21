@@ -192,7 +192,7 @@ export function gerarPDFLaudo(dados: DadosLaudo): jsPDF {
       { align: "center" }
     );
     doc.text(
-      `CivilAI Pro - Laudo Técnico`,
+      `EngenhaAI - Laudo Técnico`,
       pageWidth - margin,
       doc.internal.pageSize.getHeight() - 10,
       { align: "right" }

@@ -57,7 +57,7 @@ export default function SignupPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Criar Conta</CardTitle>
           <CardDescription>
-            Cadastre-se no CivilAI Pro
+            Cadastre-se no EngenhaAI
           </CardDescription>
         </CardHeader>
         <CardContent>

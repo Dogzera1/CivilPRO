@@ -1,5 +1,5 @@
 /**
- * Prompts Específicos por Tipo de Serviço - CivilAI Pro
+ * Prompts Específicos por Tipo de Serviço - EngenhaAI
  * 
  * Este arquivo contém os prompts detalhados para cada tipo de processamento,
  * conforme especificado no documento "Prompts Específicos por Tipo de Serviço"

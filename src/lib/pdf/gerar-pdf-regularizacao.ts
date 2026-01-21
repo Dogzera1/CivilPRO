@@ -120,7 +120,7 @@ export function gerarPDFRegularizacao(dados: DadosRegularizacao): jsPDF {
     doc.setFontSize(8);
     doc.setFont("helvetica", "italic");
     doc.text(
-      `Página ${i} de ${totalPages} - CivilAI Pro`,
+      `Página ${i} de ${totalPages} - EngenhaAI`,
       pageWidth / 2,
       doc.internal.pageSize.getHeight() - 10,
       { align: "center" }

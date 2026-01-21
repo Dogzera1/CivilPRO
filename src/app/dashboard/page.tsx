@@ -117,7 +117,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <h1 className="text-xl font-bold">CivilAI Pro</h1>
+          <h1 className="text-xl font-bold">EngenhaAI</h1>
                  <div className="flex items-center gap-4">
                    {user && (
                      <>

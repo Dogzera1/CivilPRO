@@ -394,7 +394,7 @@ export function gerarPDFConformidade(dados: DadosConformidade): jsPDF {
       { align: "center" }
     );
     doc.text(
-      `CivilAI Pro - Conformidade Urbanística`,
+      `EngenhaAI - Conformidade Urbanística`,
       pageWidth - margin,
       doc.internal.pageSize.getHeight() - 10,
       { align: "right" }

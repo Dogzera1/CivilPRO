@@ -5,10 +5,19 @@ const nextConfig = {
   
   // Configurações de imagens
   images: {
-    domains: [
-      // Adicione domínios do Supabase Storage aqui
-      process.env.NEXT_PUBLIC_SUPABASE_URL?.replace('https://', '').split('.')[0] + '.supabase.co',
-    ].filter(Boolean),
+    // `images.domains` foi depreciado -> usar remotePatterns
+    remotePatterns: [
+      // Supabase Storage (ex: https://xxxx.supabase.co/storage/v1/object/public/...)
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? [
+            {
+              protocol: "https",
+              hostname: `${process.env.NEXT_PUBLIC_SUPABASE_URL.replace("https://", "").split(".")[0]}.supabase.co`,
+              pathname: "/**",
+            },
+          ]
+        : []),
+    ],
     formats: ['image/avif', 'image/webp'],
   },
 
