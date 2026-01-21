@@ -436,8 +436,17 @@ export default function ProcessoDetailPage() {
                       onClick={async () => {
                         setLoading(true);
                         try {
+                          const { data: { session } } = await supabase.auth.getSession();
+                          if (!session?.access_token) {
+                            alert("Sessão expirada. Faça login novamente.");
+                            router.push("/login");
+                            return;
+                          }
                           const response = await fetch(`/api/job/${processoId}/gerar-pdf`, {
                             method: "POST",
+                            headers: {
+                              Authorization: `Bearer ${session.access_token}`,
+                            },
                           });
                           const data = await response.json();
                           if (data.sucesso) {
@@ -483,8 +492,17 @@ export default function ProcessoDetailPage() {
                         onClick={async () => {
                           setLoading(true);
                           try {
+                            const { data: { session } } = await supabase.auth.getSession();
+                            if (!session?.access_token) {
+                              alert("Sessão expirada. Faça login novamente.");
+                              router.push("/login");
+                              return;
+                            }
                             const response = await fetch(`/api/job/${processoId}/gerar-excel`, {
                               method: "POST",
+                              headers: {
+                                Authorization: `Bearer ${session.access_token}`,
+                              },
                             });
                             const data = await response.json();
                             if (data.sucesso) {

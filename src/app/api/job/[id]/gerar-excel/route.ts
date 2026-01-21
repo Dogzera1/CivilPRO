@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
 import { gerarExcelOrcamento, excelToBuffer } from "@/lib/excel/gerar-excel-orcamento";
 
 export async function POST(
@@ -11,33 +10,31 @@ export async function POST(
     const { id } = await params;
     const jobId = id;
 
-    // Criar cliente Supabase com autenticação do usuário
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
+    // Preferir autenticação via Authorization Bearer (mais confiável no Vercel)
+    const authHeader = request.headers.get("authorization") || request.headers.get("Authorization") || "";
+    const token = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
+
+    if (!token) {
+      return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
+    }
+
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options);
-            });
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
         },
       }
     );
 
-    // Verificar autenticação do usuário
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+    const { data: userData, error: authError } = await supabase.auth.getUser(token);
+    const user = userData?.user;
+
     if (authError || !user) {
-      return NextResponse.json(
-        { erro: "Não autenticado" },
-        { status: 401 }
-      );
+      return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
     }
 
     // Buscar o processo (apenas do usuário autenticado)
