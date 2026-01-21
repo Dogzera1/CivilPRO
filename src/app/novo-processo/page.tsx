@@ -17,6 +17,17 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 export default function NovoProcessoPage() {
   const [tipo, setTipo] = useState<TipoProcesso>("regularizacao");
   const [subtipoPlanta, setSubtipoPlanta] = useState<"eletrica" | "hidraulica">("eletrica");
+  const [subtipoLaudo, setSubtipoLaudo] = useState<
+    | "reurb"
+    | "memorial_nbr_13153"
+    | "habitabilidade_habite_se"
+    | "parecer_estrutura_conformidade"
+    | "vistoria_levantamento_predial"
+    | "avaliacao_imovel_nbr_14653"
+    | "levantamento_topografico_georreferenciamento"
+    | "art_suporte"
+    | "projeto_residencial_nbr_12721"
+  >("vistoria_levantamento_predial");
   const [files, setFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     cliente_nome: "",
@@ -159,7 +170,12 @@ export default function NovoProcessoPage() {
         body: JSON.stringify({
           tipo,
           fileUrls,
-          subtipo: tipo === "planta_complementar" ? subtipoPlanta : undefined,
+          subtipo:
+            tipo === "planta_complementar"
+              ? subtipoPlanta
+              : tipo === "laudo"
+              ? subtipoLaudo
+              : undefined,
           dadosCliente: {
             cliente_nome: formData.cliente_nome,
             endereco: formData.endereco_obra,
@@ -317,6 +333,31 @@ export default function NovoProcessoPage() {
                       <span>Hidráulica</span>
                     </label>
                   </div>
+                </div>
+              )}
+
+              {/* Seleção de subtipo para laudos */}
+              {tipo === "laudo" && (
+                <div className="mt-4 space-y-2">
+                  <Label>Subtipo do Laudo</Label>
+                  <select
+                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                    value={subtipoLaudo}
+                    onChange={(e) => setSubtipoLaudo(e.target.value as any)}
+                  >
+                    <option value="reurb">Laudo REURB (Regularização Fundiária)</option>
+                    <option value="memorial_nbr_13153">Memorial Descritivo (NBR 13153)</option>
+                    <option value="habitabilidade_habite_se">Habitabilidade / Habite-se</option>
+                    <option value="parecer_estrutura_conformidade">Parecer Estrutural e Conformidade</option>
+                    <option value="vistoria_levantamento_predial">Vistoria e Levantamento Predial</option>
+                    <option value="avaliacao_imovel_nbr_14653">Avaliação de Imóvel (NBR 14653)</option>
+                    <option value="levantamento_topografico_georreferenciamento">Topografia e Georreferenciamento</option>
+                    <option value="art_suporte">ART (Guia de preenchimento)</option>
+                    <option value="projeto_residencial_nbr_12721">Projeto Residencial (NBR 12721)</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground">
+                    A IA vai usar um prompt específico do subtipo escolhido. A saída é sempre texto puro (sem markdown).
+                  </p>
                 </div>
               )}
             </CardContent>

@@ -12,6 +12,27 @@ export interface DadosCliente {
   observacoes?: string;
 }
 
+export type SubtipoLaudo =
+  | "reurb"
+  | "memorial_nbr_13153"
+  | "habitabilidade_habite_se"
+  | "parecer_estrutura_conformidade"
+  | "vistoria_levantamento_predial"
+  | "avaliacao_imovel_nbr_14653"
+  | "levantamento_topografico_georreferenciamento"
+  | "art_suporte"
+  | "projeto_residencial_nbr_12721";
+
+function instrucoesAntiMarkdown(): string {
+  return [
+    "REGRAS DE FORMATAÇÃO (OBRIGATÓRIO):",
+    "1) Não use Markdown. Não use símbolos ou sintaxe de Markdown. Exemplos proibidos: #, ##, ###, **, *, _, -, tabelas com |, blocos com ```.",
+    "2) Se precisar enumerar, use numeração simples em texto (ex: 1), 2), 3)) ou parágrafos; não use listas em Markdown.",
+    "3) Use somente texto puro com quebras de linha normais.",
+    "4) Não invente dados. Quando não for possível identificar, escreva exatamente: NAO IDENTIFICAVEL PELAS IMAGENS.",
+  ].join(\"\\n\");
+}
+
 /**
  * Gera prompt detalhado para Regularização de Imóveis
  */
@@ -21,181 +42,42 @@ export function gerarPromptRegularizacao(
 ): string {
   const { cliente_nome = "", endereco_obra = "", cidade = "", observacoes = "" } = dadosCliente;
 
-  return `Você é um engenheiro civil especializado em regularização de imóveis.
+  return `Você é um engenheiro civil especialista em documentação técnica imobiliária, com foco em regularização e memorial descritivo (ABNT NBR 13153).
 
-Analise os documentos e fotos fornecidos e gere um MEMORIAL DESCRITIVO TÉCNICO completo para regularização de imóvel.
+OBJETIVO
+Analise a planta, foto do imóvel e/ou levantamento fornecido e elabore um MEMORIAL DESCRITIVO técnico e juridicamente válido para regularização.
 
 INFORMAÇÕES DO PROJETO
-- Endereço: ${endereco_obra || "Não informado"}
-- Cidade: ${cidade || "Não informado"}
-- Cliente: ${cliente_nome || "Não informado"}
-- Observações: ${observacoes || "Nenhuma observação adicional"}
+Endereço: ${endereco_obra || "Não informado"}
+Cidade: ${cidade || "Não informado"}
+Cliente: ${cliente_nome || "Não informado"}
+Observações adicionais: ${observacoes || "Nenhuma observação adicional"}
 
 ARQUIVOS FORNECIDOS
 ${listaArquivos || "Nenhum arquivo fornecido"}
 
-INSTRUÇÕES
+ESTRUTURA OBRIGATÓRIA DO MEMORIAL
+1) Identificação da Propriedade. Descreva o tipo de imóvel e características principais (ex: casa residencial, lote, apartamento), endereço completo e informações de registro/matrícula se existirem na documentação. Se a planta indicar loteamento, cite quadra e lote.
+2) Descrição Perimetral (Confrontações). Descreva frente, lateral direita, fundo e lateral esquerda com medidas. Se as medidas não estiverem legíveis, escreva NAO IDENTIFICAVEL PELAS IMAGENS.
+3) Características Construtivas. Informe área do terreno, área construída, área descoberta, pavimentos, estrutura, cobertura, revestimentos, pisos, aberturas (portas/janelas) e instalações (água, esgoto, energia). Use linguagem formal (ex: confronta com, perfazendo, sendo composto de).
+4) Compartimentação Interna. Liste os cômodos e, quando possível, inclua dimensões aproximadas coerentes com a planta. Se não for possível medir, escreva NAO IDENTIFICAVEL PELAS IMAGENS.
+5) Situação Física e Observações. Estado de conservação (bom/regular/ruim), benfeitorias visíveis e observações técnicas relevantes.
+6) Responsabilidade Técnica. Inclua um aviso de que o documento foi elaborado com base em imagens e recomenda-se vistoria presencial para confirmação.
 
-1. ANÁLISE INICIAL
-Identifique e descreva:
-- Tipo de edificação (residencial, comercial, mista)
-- Número de pavimentos
-- Padrão construtivo (baixo, médio, alto)
-- Estado de conservação
-- Ano aproximado de construção (se identificável)
+ORIENTAÇÕES TÉCNICAS IMPORTANTES
+Use linguagem técnica impessoal (observa-se, verifica-se). Sempre que citar normas, cite por extenso e número quando pertinente. Não invente metragem.
 
-2. MEMORIAL DESCRITIVO
-Elabore memorial técnico seguindo esta estrutura:
+${instrucoesAntiMarkdown()}
 
-2.1 DADOS DO TERRENO
-- Área do terreno (m²)
-- Dimensões aproximadas (frente x fundo)
-- Topografia (plano, aclive, declive)
-- Confrontações
-
-2.2 CARACTERÍSTICAS DA EDIFICAÇÃO
-Para CADA PAVIMENTO, descreva:
-
-Térreo/Pavimento Inferior:
-- Ambientes identificados (sala, cozinha, quartos, banheiros, etc.)
-- Área de cada ambiente (estimada)
-- Pé-direito médio
-- Área construída total do pavimento
-
-Pavimento Superior (se houver):
-- Mesma estrutura acima
-
-Área externa (se houver):
-- Garagem/estacionamento
-- Área de serviço
-- Quintal
-- Outros
-
-2.3 ESPECIFICAÇÕES TÉCNICAS
-
-Descreva os sistemas construtivos identificados:
-
-Fundações:
-- Tipo provável (sapata, radier, etc.)
-- Observações
-
-Estrutura:
-- Tipo (alvenaria estrutural, concreto armado, etc.)
-- Elementos estruturais visíveis
-
-Vedações:
-- Material das paredes (tijolo cerâmico, bloco de concreto, etc.)
-- Espessura aproximada
-- Revestimentos internos
-- Revestimentos externos
-
-Cobertura:
-- Tipo de telhado (uma água, duas águas, etc.)
-- Material (telha cerâmica, fibrocimento, laje, etc.)
-- Estrutura do telhado
-
-Esquadrias:
-- Portas: material e tipo predominante
-- Janelas: material e tipo predominante
-
-Pisos:
-- Interno: material predominante por ambiente
-- Externo: material utilizado
-
-Instalações Elétricas:
-- Padrão de entrada identificado
-- Distribuição de pontos (aparente/embutida)
-- Quadro de distribuição
-
-Instalações Hidrossanitárias:
-- Tipo de abastecimento (rede pública, poço)
-- Pontos de água identificados
-- Sistema de esgoto (rede pública, fossa)
-- Reservatório (se houver)
-
-Instalações Complementares:
-- Gás (se houver)
-- Telefone/internet
-- Outros
-
-2.4 CÁLCULO DE ÁREAS
-
-Apresente tabela formatada:
-
-Pavimento/Ambiente | Área (m²)
-Térreo - Sala | XX.XX
-Térreo - Cozinha | XX.XX
-... | ...
-ÁREA TOTAL CONSTRUÍDA | XXX.XX
-Área do Terreno | XXX.XX
-Taxa de Ocupação | XX%
-
-2.5 CONFORMIDADE URBANÍSTICA
-
-Verifique (baseado nas informações de ${cidade || "a cidade informada"}):
-
-- Taxa de ocupação calculada vs permitida
-- Recuos (frontal, lateral, fundos) - informar se conformes
-- Número de pavimentos vs gabarito permitido
-- Coeficiente de aproveitamento
-- Uso do solo (residencial/comercial vs zoneamento)
-
-IMPORTANTE: Se não tiver dados do código de obras de ${cidade || "a cidade"}, INDIQUE CLARAMENTE que a verificação deve ser feita junto ao órgão competente.
-
-2.6 OBSERVAÇÕES TÉCNICAS
-
-- Patologias identificadas (se houver)
-- Não conformidades aparentes
-- Recomendações para adequação
-- Melhorias sugeridas
-
-3. RESPONSABILIDADE TÉCNICA
-
-Inclua ao final:
-
-RESPONSABILIDADE TÉCNICA:
-
-O presente memorial descritivo foi elaborado com base em análise de plantas e fotografias fornecidas.
-
-Recomenda-se vistoria técnica presencial para confirmação das informações aqui descritas.
-
-Engenheiro(a) Responsável: [A PREENCHER]
-
-CREA: [A PREENCHER]
-
-ART: [A PREENCHER após emissão]
-
-4. FORMATO DE SAÍDA
-
-- Use linguagem técnica mas clara
-- Seja preciso nos números (sempre 2 casas decimais para áreas)
-- Use tabelas para melhor visualização
-- Destaque não conformidades em texto simples (sem formatação markdown)
-- NÃO use markdown (#, **, *, etc.) no texto do memorial
-- Mantenha formatação profissional em texto puro
-
-5. SE INFORMAÇÕES FALTAREM
-
-Se não conseguir identificar alguma informação pelos arquivos:
-
-- Indique claramente como "NÃO IDENTIFICÁVEL PELAS IMAGENS"
-- Sugira vistoria técnica presencial
-- NÃO invente dados
-
-Gere o memorial descritivo agora. Retorne em formato JSON com:
-- area_total: número (área do terreno em m²)
-- area_construida: número (área construída total em m²)
-- recuos: objeto com {frontal, lateral_esquerda, lateral_direita, fundos} em metros
-- memorial: string (memorial descritivo completo em TEXTO PURO, SEM markdown, SEM #, SEM **, SEM formatação markdown)
-- taxa_ocupacao: número (percentual)
-- pavimentos: número (quantidade de pavimentos identificados)
-- tipo_edificacao: string (residencial/comercial/mista)
-- conformidade: objeto com {conforme: boolean, observacoes: string}
-
-IMPORTANTE: 
-- Retorne APENAS um JSON válido, sem markdown code blocks, sem explicações adicionais
-- O campo "memorial" deve conter TEXTO PURO, sem símbolos markdown (#, **, *, etc.)
-- Use apenas quebras de linha e espaçamento para formatação`;
+RETORNE APENAS UM JSON VÁLIDO (sem explicações fora do JSON) com os campos:
+area_total: número (m² do terreno)
+area_construida: número (m² total construído)
+recuos: objeto com frontal, lateral_esquerda, lateral_direita, fundos (metros)
+memorial: string (memorial completo em texto puro)
+taxa_ocupacao: número (percentual)
+pavimentos: número
+tipo_edificacao: string (residencial, comercial ou mista)
+conformidade: objeto com conforme (boolean) e observacoes (string em texto puro)`;
 }
 
 /**
@@ -207,126 +89,52 @@ export function gerarPromptOrcamento(
 ): string {
   const { cliente_nome = "", cidade = "", observacoes = "" } = dadosCliente;
 
-  return `Você é um engenheiro civil especialista em orçamentos e quantitativos de obras.
+  return `Você é um engenheiro civil orçamentista, com experiência em composição de custos e estimativas via CUB e referências de mercado.
 
-Analise as plantas e documentos fornecidos e gere um ORÇAMENTO COMPLETO com quantitativos detalhados.
+OBJETIVO
+Com base na planta, imagens e/ou documentos fornecidos, gere um ORÇAMENTO ESTIMADO com quantitativos, critérios e observações. Utilize metodologia de CUB (Custo Unitário Básico) como base e discrimine os principais grupos de custo.
 
 INFORMAÇÕES DO PROJETO
-- Cliente: ${cliente_nome || "Não informado"}
-- Cidade: ${cidade || "Não informado"}
-- Observações: ${observacoes || "Nenhuma observação adicional"}
+Cliente: ${cliente_nome || "Não informado"}
+Cidade/UF: ${cidade || "Não informado"}
+Observações adicionais: ${observacoes || "Nenhuma observação adicional"}
 
 ARQUIVOS FORNECIDOS
 ${listaArquivos || "Nenhum arquivo fornecido"}
 
-INSTRUÇÕES
+METODOLOGIA (CUB)
+1) Defina a tipologia (casa residencial, reforma, ampliação etc.) e o padrão construtivo (simples, normal, luxo).
+2) Estime ou extraia a área total para orçamento. Se não for possível identificar, escreva NAO IDENTIFICAVEL PELAS IMAGENS e assuma uma faixa com justificativa.
+3) Use CUB mensal de referência da região mais próxima de ${cidade || "a região informada"}. Se você não tiver o valor exato, informe que é necessário consultar o CUB do mês e use um valor aproximado com aviso.
+4) Aplique fatores de ajuste (local, pavimentos, acabamento, dificuldade de acesso) com justificativa técnica.
 
-1. LEVANTAMENTO DE QUANTITATIVOS
+LEVANTAMENTO DE QUANTITATIVOS (principais)
+Calcule ou estime com base em engenharia, sempre explicando a premissa. Itens esperados: aço (kg), concreto (m³), blocos (un), telhas (un), portas (un), janelas (un), pontos elétricos (un), pontos hidráulicos (un).
 
-Para cada item de obra, calcule:
+RATIOS DE REFERÊNCIA (use somente se não houver medição clara na planta)
+Concreto de fundação: espessura média 0,12 m, volume aproximado = area_construida x 0,12.
+Aço CA-50: referência residencial aproximada 8 kg por m² de área construída.
+Blocos: referência aproximada 13 blocos por m² de parede (descontando vãos se possível).
+Telhas: referência aproximada 24 telhas por m² de cobertura; considerar inclinação multiplicando a área por 1,20.
+Pontos elétricos: referência aproximada = (número de cômodos x 4) + (area_construida / 10).
+Pontos hidráulicos: referência aproximada = (banheiros x 8) + (cozinha x 5).
 
-1.1 SERVIÇOS PRELIMINARES
-- Limpeza e preparo do terreno
-- Locação da obra
-- Instalações provisórias
+${instrucoesAntiMarkdown()}
 
-1.2 FUNDAÇÕES
-- Escavação manual/mecânica (m³)
-- Concreto de fundação (m³)
-- Formas de fundação (m²)
-- Armadura de fundação (kg)
-- Bloco de concreto estrutural (m³)
-
-1.3 ESTRUTURA
-- Concreto estrutural (m³) - lajes, vigas, pilares
-- Armadura estrutural (kg) - CA-50
-- Formas estruturais (m²)
-- Alvenaria estrutural (m²)
-
-1.4 VEDAÇÕES
-- Alvenaria de vedação (m²)
-- Blocos cerâmicos ou de concreto (un)
-- Argamassa de assentamento (m³)
-- Argamassa de revestimento (m²)
-
-1.5 COBERTURA
-- Estrutura de telhado (m²)
-- Telhas cerâmicas (un) - considerar 24 telhas/m² com inclinação
-- Madeiramento (m³)
-- Impermeabilização (m²)
-
-1.6 INSTALAÇÕES
-- Instalações elétricas (pontos)
-- Instalações hidrossanitárias (pontos)
-- Instalações de gás (se houver)
-
-1.7 REVESTIMENTOS
-- Revestimento interno (m²)
-- Revestimento externo (m²)
-- Pisos (m²)
-- Azulejos/cerâmicas (m²)
-
-1.8 ESQUADRIAS
-- Portas (un)
-- Janelas (un)
-- Portões (un)
-
-1.9 PINTURA
-- Pintura interna (m²)
-- Pintura externa (m²)
-
-2. CÁLCULOS DE REFERÊNCIA
-
-Use os seguintes ratios de engenharia:
-
-Concreto de Fundação:
-- Espessura média: 12cm
-- Fórmula: área_construida * 0.12 (m³)
-
-Aço CA-50:
-- Média para residencial: 8 kg/m² de área construída
-- Fórmula: area_construida * 8 (kg)
-
-Blocos Cerâmicos:
-- 13 blocos/m² de parede (considerando vãos)
-- Fórmula: (perimetro_paredes * pe_direito - area_vãos) * 13 (un)
-
-Telhas Cerâmicas:
-- 24 telhas/m² de cobertura
-- Considerar inclinação: área_cobertura * 1.20 * 24 (un)
-
-Pontos Elétricos:
-- Média: (numero_comodos * 4) + (area_construida / 10) (un)
-
-Pontos Hidráulicos:
-- Média: (banheiros * 8) + (cozinha * 5) (un)
-
-3. PREÇOS DE REFERÊNCIA
-
-Consulte valores atualizados do CUB-MG para ${cidade || "a região"} ou use valores de referência do mercado local.
-
-4. FORMATO DE SAÍDA
-
-Retorne em formato JSON com:
-
-- quantidade_aco: número (kg de aço CA-50)
-- quantidade_concreto: número (m³ de concreto)
-- quantidade_blocos: número (unidades de blocos)
-- quantidade_telhas: número (unidades de telhas)
-- quantidade_portas: número (unidades)
-- quantidade_janelas: número (unidades)
-- pontos_eletricos: número (quantidade de pontos)
-- pontos_hidraulicos: número (quantidade de pontos)
-- area_construida: número (m²)
-- valor_total: número (R$ - valor total estimado)
-- detalhamento: string (texto completo do orçamento em TEXTO PURO, SEM markdown, SEM #, SEM **, SEM formatação markdown)
-- quantitativos: array de objetos com {item, unidade, quantidade, preco_unitario, total}
-- cronograma: array de objetos com {mes, etapa, valor, acumulado}
-
-IMPORTANTE: 
-- Retorne APENAS um JSON válido, sem markdown code blocks, sem explicações adicionais
-- O campo "detalhamento" deve conter TEXTO PURO, sem símbolos markdown (#, **, *, etc.)
-- Use apenas quebras de linha e espaçamento para formatação`;
+RETORNE APENAS UM JSON VÁLIDO (sem explicações fora do JSON) com os campos:
+quantidade_aco: número
+quantidade_concreto: número
+quantidade_blocos: número
+quantidade_telhas: número
+quantidade_portas: número
+quantidade_janelas: número
+pontos_eletricos: número
+pontos_hidraulicos: número
+area_construida: número
+valor_total: número
+detalhamento: string (texto puro, completo, com justificativas e premissas)
+quantitativos: array de objetos com item, unidade, quantidade, preco_unitario, total
+cronograma: array de objetos com mes, etapa, valor, acumulado`;
 }
 
 /**
@@ -474,46 +282,69 @@ IMPORTANTE:
  */
 export function gerarPromptLaudo(
   listaArquivos: string,
-  dadosCliente: DadosCliente
+  dadosCliente: DadosCliente,
+  subtipo?: SubtipoLaudo
 ): string {
   const { cliente_nome = "", endereco_obra = "", cidade = "", observacoes = "" } = dadosCliente;
 
-  return `Você é um engenheiro civil especializado em laudos técnicos.
+  const subtipoTxt = subtipo ? `SUBTIPO DE LAUDO: ${subtipo}` : "SUBTIPO DE LAUDO: nao informado (use laudo tecnico geral).";
 
-Analise os documentos e informações fornecidos e elabore um LAUDO TÉCNICO completo.
+  const orientacoesPorSubtipo: Record<string, string> = {
+    reurb:
+      "Elabore um LAUDO TÉCNICO DE REGULARIZAÇÃO FUNDIÁRIA conforme Lei 13465/2017 e Decreto 9310/2018. Inclua identificação do imóvel, caracterização técnica (ocupação, áreas, pavimentos), situação jurídica e urbanística, aspectos ambientais (APP, riscos), conformidade técnica (acessos, circulação, acessibilidade NBR 9050) e conclusão (favorável, favorável com ressalvas ou desfavorável).",
+    memorial_nbr_13153:
+      "Elabore um MEMORIAL DESCRITIVO de imóvel conforme ABNT NBR 13153, com identificação, confrontações, características construtivas, compartimentação e observações finais. Linguagem formal e juridicamente válida para cartório.",
+    habitabilidade_habite_se:
+      "Elabore um LAUDO DE HABITABILIDADE/HABITE-SE. Verifique segurança estrutural, instalações elétricas (NBR 5410), instalações hidráulicas e sanitárias, ventilação e iluminação (NBR 15220), acessibilidade (NBR 9050 quando aplicável), segurança contra incêndio conforme exigências locais e higiene. Classifique resultado final como favorável, favorável com ressalvas ou desfavorável, com justificativas e prazos para correções quando houver.",
+    parecer_estrutura_conformidade:
+      "Elabore um PARECER TÉCNICO de estrutura e conformidade, focado em patologias e risco estrutural. Descreva metodologia, caracterização da edificação, manifestações patológicas (trincas, umidade, deterioração, deformações), análise de causas, avaliação de risco e recomendações. Cite NBR 13449, NBR 6118 e NBR 15575 quando pertinente.",
+    vistoria_levantamento_predial:
+      "Elabore um LAUDO DE VISTORIA E LEVANTAMENTO PREDIAL para aluguel, venda ou seguro. Descreva áreas externas, áreas comuns (se houver), cômodos internos, instalações técnicas (elétrica, hidráulica, ar condicionado se houver), patologias, estado geral de conservação e recomendações. Use linguagem impessoal e objetiva.",
+    avaliacao_imovel_nbr_14653:
+      "Elabore um LAUDO DE AVALIAÇÃO DE IMÓVEL conforme ABNT NBR 14653 (partes 1 e 2). Descreva o imóvel, finalidade, metodologia (comparativo direto, renda ou evolutivo), pesquisa de mercado (mínimo 3 comparáveis quando possível) e cálculo do valor, com intervalo de confiança e fatores positivos e negativos.",
+    levantamento_topografico_georreferenciamento:
+      "Elabore um RELATÓRIO DE LEVANTAMENTO TOPOGRÁFICO E GEORREFERENCIAMENTO. Descreva metodologia (equipamentos, precisão, SIRGAS 2000, UTM), caracterização do terreno (área, perímetro, declividade, cotas), confrontações e vértices. Se coordenadas não estiverem disponíveis, escreva NAO IDENTIFICAVEL PELAS IMAGENS e indique necessidade de levantamento in loco.",
+    art_suporte:
+      "Elabore um GUIA DE PREENCHIMENTO DE ART para engenheiro civil, explicando o que é ART (Lei 6496/1977), quando é necessária, plataforma do CREA, campos obrigatórios, procedimento e erros comuns. Este é um guia informativo, não um laudo do imóvel.",
+    projeto_residencial_nbr_12721:
+      "Elabore informações técnicas conforme ABNT NBR 12721 (incorporação), incluindo quadros e resumo de áreas. Se não houver dados suficientes na planta, escreva NAO IDENTIFICAVEL PELAS IMAGENS e indique quais informações faltam.",
+  };
+
+  const guiaSubtipo = subtipo && orientacoesPorSubtipo[subtipo] ? orientacoesPorSubtipo[subtipo] : "Elabore um laudo técnico geral: objetivo, metodologia, análise, conclusões e recomendações, adequado ao material fornecido.";
+
+  return `Você é um engenheiro civil especialista em laudos técnicos e documentação técnica.
+
+${subtipoTxt}
 
 INFORMAÇÕES DO PROJETO
-- Cliente: ${cliente_nome || "Não informado"}
-- Endereço: ${endereco_obra || "Não informado"}
-- Cidade: ${cidade || "Não informado"}
-- Observações: ${observacoes || "Nenhuma observação adicional"}
+Cliente: ${cliente_nome || "Não informado"}
+Endereço: ${endereco_obra || "Não informado"}
+Cidade: ${cidade || "Não informado"}
+Observações adicionais: ${observacoes || "Nenhuma observação adicional"}
 
-DOCUMENTOS FORNECIDOS
+DOCUMENTOS/IMAGENS FORNECIDOS
 ${listaArquivos || "Nenhum arquivo fornecido"}
 
-INSTRUÇÕES
+ORIENTAÇÕES DO TRABALHO
+${guiaSubtipo}
 
-1. ESTRUTURA DO LAUDO
+ESTRUTURA DO DOCUMENTO (obrigatória)
+1) Objetivo do documento
+2) Metodologia utilizada (descrição impessoal)
+3) Análise técnica detalhada, baseada no material fornecido
+4) Conclusões
+5) Recomendações e condicionantes (quando houver)
+6) Fechamento com responsabilidade técnica (nome, CREA e data como campos a preencher)
 
-- Objetivo do laudo
-- Metodologia utilizada
-- Análise técnica detalhada
-- Conclusões e recomendações
+${instrucoesAntiMarkdown()}
 
-2. FORMATO DE SAÍDA
-
-Retorne em formato JSON com:
-- objetivo: string (texto puro, sem markdown)
-- metodologia: string (texto puro, sem markdown)
-- analise: string (análise técnica completa em TEXTO PURO, SEM markdown, SEM #, SEM **, SEM formatação markdown)
-- conclusoes: string (texto puro, sem markdown)
-- recomendacoes: string (texto puro, sem markdown)
-- laudo_completo: string (texto completo em TEXTO PURO, SEM markdown, SEM #, SEM **, SEM formatação markdown)
-
-IMPORTANTE: 
-- Retorne APENAS um JSON válido, sem markdown code blocks, sem explicações adicionais
-- Todos os campos de texto devem conter TEXTO PURO, sem símbolos markdown (#, **, *, etc.)
-- Use apenas quebras de linha e espaçamento para formatação`;
+RETORNE APENAS UM JSON VÁLIDO (sem explicações fora do JSON) com os campos:
+objetivo: string
+metodologia: string
+analise: string
+conclusoes: string
+recomendacoes: string
+laudo_completo: string`;
 }
 
 /**

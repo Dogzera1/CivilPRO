@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
           );
         }
       } else if (tipo === "laudo") {
-        resultado = await gerarLaudo(listaArquivos, dados);
+        resultado = await gerarLaudo(listaArquivos, dados, subtipo);
       } else if (tipo === "conformidade") {
         resultado = await verificarConformidade(listaArquivos, dados);
       } else {

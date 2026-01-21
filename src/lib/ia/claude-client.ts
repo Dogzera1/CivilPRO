@@ -355,9 +355,10 @@ export async function gerarPlantaHidraulica(
  */
 export async function gerarLaudo(
   descricaoDocumentos: string,
-  dadosCliente: DadosCliente
+  dadosCliente: DadosCliente,
+  subtipo?: import("./prompts").SubtipoLaudo
 ): Promise<any> {
-  const prompt = gerarPromptLaudo(descricaoDocumentos, dadosCliente);
+  const prompt = gerarPromptLaudo(descricaoDocumentos, dadosCliente, subtipo);
 
   const messages: ClaudeMessage[] = [
     {
