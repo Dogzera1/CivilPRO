@@ -3,6 +3,7 @@
  */
 
 import jsPDF from "jspdf";
+import { limparMarkdown } from "./limpar-markdown";
 
 export interface DadosLaudo {
   cliente_nome?: string;
@@ -73,7 +74,8 @@ export function gerarPDFLaudo(dados: DadosLaudo): jsPDF {
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const objetivoLines = doc.splitTextToSize(dados.objetivo, pageWidth - 2 * margin);
+    const objetivoLimpo = limparMarkdown(dados.objetivo);
+    const objetivoLines = doc.splitTextToSize(objetivoLimpo, pageWidth - 2 * margin);
     doc.text(objetivoLines, margin, yPosition);
     yPosition += objetivoLines.length * 6 + 5;
   }
@@ -92,7 +94,8 @@ export function gerarPDFLaudo(dados: DadosLaudo): jsPDF {
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const metodologiaLines = doc.splitTextToSize(dados.metodologia, pageWidth - 2 * margin);
+    const metodologiaLimpa = limparMarkdown(dados.metodologia);
+    const metodologiaLines = doc.splitTextToSize(metodologiaLimpa, pageWidth - 2 * margin);
     doc.text(metodologiaLines, margin, yPosition);
     yPosition += metodologiaLines.length * 6 + 5;
   }
@@ -111,7 +114,8 @@ export function gerarPDFLaudo(dados: DadosLaudo): jsPDF {
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const analiseLines = doc.splitTextToSize(dados.analise, pageWidth - 2 * margin);
+    const analiseLimpa = limparMarkdown(dados.analise);
+    const analiseLines = doc.splitTextToSize(analiseLimpa, pageWidth - 2 * margin);
     doc.text(analiseLines, margin, yPosition);
     yPosition += analiseLines.length * 6 + 5;
   }
@@ -130,7 +134,8 @@ export function gerarPDFLaudo(dados: DadosLaudo): jsPDF {
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const conclusoesLines = doc.splitTextToSize(dados.conclusoes, pageWidth - 2 * margin);
+    const conclusoesLimpas = limparMarkdown(dados.conclusoes);
+    const conclusoesLines = doc.splitTextToSize(conclusoesLimpas, pageWidth - 2 * margin);
     doc.text(conclusoesLines, margin, yPosition);
     yPosition += conclusoesLines.length * 6 + 5;
   }
@@ -149,7 +154,8 @@ export function gerarPDFLaudo(dados: DadosLaudo): jsPDF {
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const recomendacoesLines = doc.splitTextToSize(dados.recomendacoes, pageWidth - 2 * margin);
+    const recomendacoesLimpas = limparMarkdown(dados.recomendacoes);
+    const recomendacoesLines = doc.splitTextToSize(recomendacoesLimpas, pageWidth - 2 * margin);
     doc.text(recomendacoesLines, margin, yPosition);
     yPosition += recomendacoesLines.length * 6 + 5;
   }
@@ -168,7 +174,8 @@ export function gerarPDFLaudo(dados: DadosLaudo): jsPDF {
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const laudoLines = doc.splitTextToSize(dados.laudo_completo, pageWidth - 2 * margin);
+    const laudoLimpo = limparMarkdown(dados.laudo_completo);
+    const laudoLines = doc.splitTextToSize(laudoLimpo, pageWidth - 2 * margin);
     doc.text(laudoLines, margin, yPosition);
   }
 

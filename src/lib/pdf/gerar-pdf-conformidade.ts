@@ -3,6 +3,7 @@
  */
 
 import jsPDF from "jspdf";
+import { limparMarkdown } from "./limpar-markdown";
 
 export interface DadosConformidade {
   cliente_nome?: string;
@@ -374,7 +375,8 @@ export function gerarPDFConformidade(dados: DadosConformidade): jsPDF {
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const relatorioLines = doc.splitTextToSize(dados.relatorio_completo, pageWidth - 2 * margin);
+    const relatorioLimpo = limparMarkdown(dados.relatorio_completo);
+    const relatorioLines = doc.splitTextToSize(relatorioLimpo, pageWidth - 2 * margin);
     doc.text(relatorioLines, margin, yPosition);
   }
 

@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { limparMarkdown } from "./limpar-markdown";
 
 interface DadosOrcamento {
   quantidade_aco: number;
@@ -100,9 +101,12 @@ export function gerarPDFOrcamento(dados: DadosOrcamento): jsPDF {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   
+  // Limpar markdown do detalhamento
+  const detalhamentoLimpo = limparMarkdown(dados.detalhamento || "Detalhamento gerado pela IA.");
+  
   // Quebrar texto em múltiplas linhas
   const maxWidth = pageWidth - 2 * margin;
-  const lines = doc.splitTextToSize(dados.detalhamento || "Detalhamento gerado pela IA.", maxWidth);
+  const lines = doc.splitTextToSize(detalhamentoLimpo, maxWidth);
   
   lines.forEach((line: string) => {
     if (yPos > doc.internal.pageSize.getHeight() - 30) {

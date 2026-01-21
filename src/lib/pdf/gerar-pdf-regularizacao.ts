@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { limparMarkdown } from "./limpar-markdown";
 
 interface DadosRegularizacao {
   area_total: number;
@@ -97,9 +98,11 @@ export function gerarPDFRegularizacao(dados: DadosRegularizacao): jsPDF {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   
+  const memorialLimpo = limparMarkdown(dados.memorial || "Memorial descritivo gerado pela IA.");
+  
   // Quebrar texto em múltiplas linhas
   const maxWidth = pageWidth - 2 * margin;
-  const lines = doc.splitTextToSize(dados.memorial || "Memorial descritivo gerado pela IA.", maxWidth);
+  const lines = doc.splitTextToSize(memorialLimpo, maxWidth);
   
   lines.forEach((line: string) => {
     if (yPos > doc.internal.pageSize.getHeight() - 30) {
