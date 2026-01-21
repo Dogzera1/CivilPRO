@@ -112,9 +112,17 @@ export async function POST(
     const pdfBuffer = await pdfBlob.arrayBuffer();
     const pdfArray = new Uint8Array(pdfBuffer);
 
-    // Upload para Supabase Storage
+    // Upload para Supabase Storage usando SERVICE_ROLE_KEY para garantir permissões
     const fileName = `pdfs/${processo.user_id}/${jobId}_${Date.now()}.pdf`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    
+    // Criar cliente com SERVICE_ROLE_KEY para upload (bypass RLS)
+    const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+    const supabaseStorage = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { data: uploadData, error: uploadError } = await supabaseStorage.storage
       .from("uploads")
       .upload(fileName, pdfArray, {
         contentType: "application/pdf",
@@ -122,9 +130,10 @@ export async function POST(
       });
 
     if (uploadError) {
-      console.error("Erro no upload do PDF:", uploadError);
+      console.error("[PDF] Erro no upload do PDF:", uploadError);
+      console.error("[PDF] Detalhes:", JSON.stringify(uploadError, null, 2));
       return NextResponse.json(
-        { erro: "Erro ao fazer upload do PDF" },
+        { erro: `Erro ao fazer upload do PDF: ${uploadError.message || "Erro desconhecido"}` },
         { status: 500 }
       );
     }
@@ -132,7 +141,7 @@ export async function POST(
     // Obter URL pública
     const {
       data: { publicUrl },
-    } = supabase.storage.from("uploads").getPublicUrl(fileName);
+    } = supabaseStorage.storage.from("uploads").getPublicUrl(fileName);
 
     // Atualizar processo com URL do PDF
     const { error: updateError } = await supabase

@@ -85,9 +85,17 @@ export async function POST(
     // Converter para buffer
     const excelBuffer = excelToBuffer(workbook);
 
-    // Upload para Supabase Storage
+    // Upload para Supabase Storage usando SERVICE_ROLE_KEY para garantir permissões
     const fileName = `excel/${processo.user_id}/${jobId}_${Date.now()}.xlsx`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    
+    // Criar cliente com SERVICE_ROLE_KEY para upload (bypass RLS)
+    const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+    const supabaseStorage = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { data: uploadData, error: uploadError } = await supabaseStorage.storage
       .from("uploads")
       .upload(fileName, excelBuffer, {
         contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -95,9 +103,10 @@ export async function POST(
       });
 
     if (uploadError) {
-      console.error("Erro no upload do Excel:", uploadError);
+      console.error("[Excel] Erro no upload do Excel:", uploadError);
+      console.error("[Excel] Detalhes:", JSON.stringify(uploadError, null, 2));
       return NextResponse.json(
-        { erro: "Erro ao fazer upload do Excel" },
+        { erro: `Erro ao fazer upload do Excel: ${uploadError.message || "Erro desconhecido"}` },
         { status: 500 }
       );
     }
@@ -105,7 +114,7 @@ export async function POST(
     // Obter URL pública
     const {
       data: { publicUrl },
-    } = supabase.storage.from("uploads").getPublicUrl(fileName);
+    } = supabaseStorage.storage.from("uploads").getPublicUrl(fileName);
 
     // Atualizar processo com URL do Excel
     const { error: updateError } = await supabase
