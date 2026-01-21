@@ -475,58 +475,56 @@ export default function ProcessoDetailPage() {
                 {/* Botões para gerar PDF e Excel */}
                 <div className="pt-4 border-t space-y-2">
                   {/* PDF */}
-                  {processo.resultado_pdf ? (
-                    <a href={processo.resultado_pdf} target="_blank" rel="noopener noreferrer">
-                      <Button className="w-full">
-                        <FileText className="mr-2 h-4 w-4" />
-                        Baixar PDF
-                      </Button>
-                    </a>
-                  ) : (
-                    <Button 
-                      className="w-full" 
-                      onClick={async () => {
-                        setLoading(true);
-                        try {
-                          const { data: { session } } = await supabase.auth.getSession();
-                          if (!session?.access_token) {
-                            alert("Sessão expirada. Faça login novamente.");
-                            router.push("/login");
-                            return;
+                  <Button 
+                    className="w-full" 
+                    onClick={async () => {
+                      setLoading(true);
+                      try {
+                        const { data: { session } } = await supabase.auth.getSession();
+                        if (!session?.access_token) {
+                          alert("Sessão expirada. Faça login novamente.");
+                          router.push("/login");
+                          return;
+                        }
+                        const response = await fetch(`/api/job/${processoId}/gerar-pdf`, {
+                          method: "POST",
+                          headers: {
+                            Authorization: `Bearer ${session.access_token}`,
+                          },
+                        });
+                        const data = await response.json();
+                        if (data.sucesso) {
+                          // Abrir PDF em nova aba automaticamente
+                          if (data.pdf_url) {
+                            window.open(data.pdf_url, '_blank');
                           }
-                          const response = await fetch(`/api/job/${processoId}/gerar-pdf`, {
-                            method: "POST",
-                            headers: {
-                              Authorization: `Bearer ${session.access_token}`,
-                            },
-                          });
-                          const data = await response.json();
-                          if (data.sucesso) {
+                          // Atualizar página para mostrar que PDF foi gerado
+                          setTimeout(() => {
                             window.location.reload();
-                          } else {
-                            alert(`Erro ao gerar PDF: ${data.erro}`);
-                            setLoading(false);
-                          }
-                        } catch (error: any) {
-                          alert(`Erro ao gerar PDF: ${error.message}`);
+                          }, 1000);
+                        } else {
+                          alert(`Erro ao gerar PDF: ${data.erro}`);
                           setLoading(false);
                         }
-                      }}
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Gerando PDF...
-                        </>
-                      ) : (
-                        <>
-                          <FileText className="mr-2 h-4 w-4" />
-                          Gerar PDF
-                        </>
-                      )}
-                    </Button>
-                  )}
+                      } catch (error: any) {
+                        alert(`Erro ao gerar PDF: ${error.message}`);
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Gerando PDF...
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="mr-2 h-4 w-4" />
+                        {processo.resultado_pdf ? "Regenerar e Baixar PDF" : "Gerar e Baixar PDF"}
+                      </>
+                    )}
+                  </Button>
 
                   {/* Excel (apenas para orçamento) */}
                   {processo.tipo === "orcamento" && (
