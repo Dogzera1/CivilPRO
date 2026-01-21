@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { gerarExcelOrcamento, excelToBuffer } from "@/lib/excel/gerar-excel-orcamento";
 
 export async function POST(
@@ -9,18 +10,46 @@ export async function POST(
   try {
     const { id } = await params;
     const jobId = id;
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Buscar o processo
+    // Criar cliente Supabase com autenticação do usuário
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          },
+        },
+      }
+    );
+
+    // Verificar autenticação do usuário
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { erro: "Não autenticado" },
+        { status: 401 }
+      );
+    }
+
+    // Buscar o processo (apenas do usuário autenticado)
     const { data: processo, error: processoError } = await supabase
       .from("jobs")
       .select("*")
       .eq("id", jobId)
+      .eq("user_id", user.id)
       .single();
 
     if (processoError || !processo) {
+      console.error("[Excel] Erro ao buscar processo:", processoError);
       return NextResponse.json(
         { erro: "Processo não encontrado" },
         { status: 404 }
