@@ -436,7 +436,7 @@ export default function ProcessoDetailPage() {
                       onClick={async () => {
                         setLoading(true);
                         try {
-                          const response = await fetch(`/api/processo/${processoId}/gerar-pdf`, {
+                          const response = await fetch(`/api/job/${processoId}/gerar-pdf`, {
                             method: "POST",
                           });
                           const data = await response.json();
@@ -483,7 +483,7 @@ export default function ProcessoDetailPage() {
                         onClick={async () => {
                           setLoading(true);
                           try {
-                            const response = await fetch(`/api/processo/${processoId}/gerar-excel`, {
+                            const response = await fetch(`/api/job/${processoId}/gerar-excel`, {
                               method: "POST",
                             });
                             const data = await response.json();
