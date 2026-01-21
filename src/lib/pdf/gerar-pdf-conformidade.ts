@@ -356,7 +356,8 @@ export function gerarPDFConformidade(dados: DadosConformidade): jsPDF {
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const observacoesLines = doc.splitTextToSize(dados.observacoes, pageWidth - 2 * margin);
+    const observacoesLimpas = limparMarkdown(dados.observacoes);
+    const observacoesLines = doc.splitTextToSize(observacoesLimpas, pageWidth - 2 * margin);
     doc.text(observacoesLines, margin, yPosition);
     yPosition += observacoesLines.length * 6 + 5;
   }
