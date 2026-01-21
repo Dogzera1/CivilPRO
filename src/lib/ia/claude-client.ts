@@ -1,7 +1,6 @@
 /**
- * Cliente para API da Perplexity (DEPRECADO - Usando Claude agora)
- * Este arquivo mantém compatibilidade, mas redireciona para Claude
- * Documentação: https://docs.perplexity.ai/
+ * Cliente para API do Claude (Anthropic)
+ * Documentação: https://docs.anthropic.com/claude/reference/messages_post
  */
 
 import {
@@ -14,77 +13,76 @@ import {
   DadosCliente,
 } from "./prompts";
 
-// Re-exportar funções do Claude para manter compatibilidade
-export {
-  analisarPlantaRegularizacao,
-  gerarOrcamento,
-  gerarPlantaEletrica,
-  gerarPlantaHidraulica,
-  gerarLaudo,
-  verificarConformidade,
-} from "./claude-client";
-
-const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
+const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 // Usar variável de ambiente do servidor (não expor no cliente)
-const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || process.env.NEXT_PUBLIC_PERPLEXITY_API_KEY || "";
+const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY || process.env.NEXT_PUBLIC_CLAUDE_API_KEY || "";
 
-export interface PerplexityMessage {
-  role: "system" | "user" | "assistant";
-  content: string;
+export interface ClaudeMessage {
+  role: "user" | "assistant";
+  content: string | Array<{ type: "text" | "image"; text?: string; source?: { type: string; data: string; media_type: string } }>;
 }
 
-export async function callPerplexity(
-  messages: PerplexityMessage[],
-  model: string = "sonar"
+export async function callClaude(
+  messages: ClaudeMessage[],
+  model: string = "claude-3-5-sonnet-20241022",
+  system?: string
 ): Promise<string> {
-  if (!PERPLEXITY_API_KEY) {
-    console.error("[Perplexity] API key não encontrada. Variáveis disponíveis:", {
-      PERPLEXITY_API_KEY: !!process.env.PERPLEXITY_API_KEY,
-      NEXT_PUBLIC_PERPLEXITY_API_KEY: !!process.env.NEXT_PUBLIC_PERPLEXITY_API_KEY,
+  if (!CLAUDE_API_KEY) {
+    console.error("[Claude] API key não encontrada. Variáveis disponíveis:", {
+      CLAUDE_API_KEY: !!process.env.CLAUDE_API_KEY,
+      NEXT_PUBLIC_CLAUDE_API_KEY: !!process.env.NEXT_PUBLIC_CLAUDE_API_KEY,
     });
-    throw new Error("Perplexity API key não configurada. Verifique PERPLEXITY_API_KEY no .env.local");
+    throw new Error("Claude API key não configurada. Verifique CLAUDE_API_KEY no .env.local");
   }
 
-  console.log("[Perplexity] Chamando API com modelo:", model);
-  console.log("[Perplexity] Mensagens:", messages.length);
+  console.log("[Claude] Chamando API com modelo:", model);
+  console.log("[Claude] Mensagens:", messages.length);
 
   try {
-    const response = await fetch(PERPLEXITY_API_URL, {
+    const requestBody: any = {
+      model,
+      max_tokens: 4096,
+      messages: messages.map(msg => ({
+        role: msg.role,
+        content: typeof msg.content === "string" ? msg.content : msg.content,
+      })),
+    };
+
+    if (system) {
+      requestBody.system = system;
+    }
+
+    const response = await fetch(CLAUDE_API_URL, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${PERPLEXITY_API_KEY}`,
+        "x-api-key": CLAUDE_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: 0.2,
-        max_tokens: 4000,
-        // Não incluir logprobs para evitar erros de validação
-      }),
+      body: JSON.stringify(requestBody),
     });
 
-    console.log("[Perplexity] Status da resposta:", response.status);
+    console.log("[Claude] Status da resposta:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[Perplexity] Erro da API:", errorText);
-      throw new Error(`Perplexity API error: ${response.status} - ${errorText}`);
+      console.error("[Claude] Erro da API:", errorText);
+      throw new Error(`Claude API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    const content = data.choices[0]?.message?.content || "";
-    console.log("[Perplexity] Resposta recebida, tamanho:", content.length);
+    const content = data.content?.[0]?.text || "";
+    console.log("[Claude] Resposta recebida, tamanho:", content.length);
     
     if (!content) {
-      console.warn("[Perplexity] Resposta vazia:", JSON.stringify(data, null, 2));
+      console.warn("[Claude] Resposta vazia:", JSON.stringify(data, null, 2));
     }
     
     return content;
   } catch (error: any) {
-    console.error("[Perplexity] Erro ao chamar API:", error);
-    console.error("[Perplexity] Tipo do erro:", error.constructor.name);
-    console.error("[Perplexity] Mensagem:", error.message);
+    console.error("[Claude] Erro ao chamar API:", error);
+    console.error("[Claude] Tipo do erro:", error.constructor.name);
+    console.error("[Claude] Mensagem:", error.message);
     throw error;
   }
 }
@@ -117,18 +115,16 @@ export async function analisarPlantaRegularizacao(
 
   const prompt = gerarPromptRegularizacao(descricaoArquivo, dadosCliente);
 
-  const messages: PerplexityMessage[] = [
-    {
-      role: "system",
-      content: "Você é um engenheiro civil especialista em regularização de imóveis. Sempre retorne JSON válido conforme solicitado.",
-    },
+  const messages: ClaudeMessage[] = [
     {
       role: "user",
       content: prompt,
     },
   ];
 
-  const response = await callPerplexity(messages);
+  const systemPrompt = "Você é um engenheiro civil especialista em regularização de imóveis. Sempre retorne JSON válido conforme solicitado.";
+
+  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
   
   // Tentar extrair JSON da resposta
   try {
@@ -200,18 +196,16 @@ export async function gerarOrcamento(
 
   const prompt = gerarPromptOrcamento(descricaoPlanta, dadosCliente);
 
-  const messages: PerplexityMessage[] = [
-    {
-      role: "system",
-      content: "Você é um engenheiro civil especialista em orçamentos e quantitativos. Sempre retorne JSON válido conforme solicitado.",
-    },
+  const messages: ClaudeMessage[] = [
     {
       role: "user",
       content: prompt,
     },
   ];
 
-  const response = await callPerplexity(messages);
+  const systemPrompt = "Você é um engenheiro civil especialista em orçamentos e quantitativos. Sempre retorne JSON válido conforme solicitado.";
+
+  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
@@ -255,18 +249,16 @@ export async function gerarPlantaEletrica(
 ): Promise<any> {
   const prompt = gerarPromptPlantaEletrica(descricaoPlanta, dadosCliente);
 
-  const messages: PerplexityMessage[] = [
-    {
-      role: "system",
-      content: "Você é um engenheiro eletricista especialista. Sempre retorne JSON válido conforme solicitado.",
-    },
+  const messages: ClaudeMessage[] = [
     {
       role: "user",
       content: prompt,
     },
   ];
 
-  const response = await callPerplexity(messages);
+  const systemPrompt = "Você é um engenheiro eletricista especialista. Sempre retorne JSON válido conforme solicitado.";
+
+  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
@@ -289,18 +281,16 @@ export async function gerarPlantaHidraulica(
 ): Promise<any> {
   const prompt = gerarPromptPlantaHidraulica(descricaoPlanta, dadosCliente);
 
-  const messages: PerplexityMessage[] = [
-    {
-      role: "system",
-      content: "Você é um engenheiro especialista em projetos hidrossanitários. Sempre retorne JSON válido conforme solicitado.",
-    },
+  const messages: ClaudeMessage[] = [
     {
       role: "user",
       content: prompt,
     },
   ];
 
-  const response = await callPerplexity(messages);
+  const systemPrompt = "Você é um engenheiro especialista em projetos hidrossanitários. Sempre retorne JSON válido conforme solicitado.";
+
+  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
@@ -323,18 +313,16 @@ export async function gerarLaudo(
 ): Promise<any> {
   const prompt = gerarPromptLaudo(descricaoDocumentos, dadosCliente);
 
-  const messages: PerplexityMessage[] = [
-    {
-      role: "system",
-      content: "Você é um engenheiro civil especialista em laudos técnicos. Sempre retorne JSON válido conforme solicitado.",
-    },
+  const messages: ClaudeMessage[] = [
     {
       role: "user",
       content: prompt,
     },
   ];
 
-  const response = await callPerplexity(messages);
+  const systemPrompt = "Você é um engenheiro civil especialista em laudos técnicos. Sempre retorne JSON válido conforme solicitado.";
+
+  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
@@ -357,18 +345,16 @@ export async function verificarConformidade(
 ): Promise<any> {
   const prompt = gerarPromptConformidade(descricaoDocumentos, dadosCliente);
 
-  const messages: PerplexityMessage[] = [
-    {
-      role: "system",
-      content: "Você é um engenheiro civil especialista em conformidade urbanística. Sempre retorne JSON válido conforme solicitado.",
-    },
+  const messages: ClaudeMessage[] = [
     {
       role: "user",
       content: prompt,
     },
   ];
 
-  const response = await callPerplexity(messages);
+  const systemPrompt = "Você é um engenheiro civil especialista em conformidade urbanística. Sempre retorne JSON válido conforme solicitado.";
+
+  const response = await callClaude(messages, "claude-3-5-sonnet-20241022", systemPrompt);
   
   try {
     const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 

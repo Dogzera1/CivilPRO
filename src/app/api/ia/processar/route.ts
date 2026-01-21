@@ -6,7 +6,7 @@ import {
   gerarPlantaHidraulica,
   gerarLaudo,
   verificarConformidade,
-} from "@/lib/ia/perplexity-client";
+} from "@/lib/ia/claude-client";
 import { DadosCliente } from "@/lib/ia/prompts";
 
 export const runtime = 'nodejs'; // Garantir que roda no Node.js
@@ -43,9 +43,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se a chave da API está configurada
-    const apiKey = process.env.PERPLEXITY_API_KEY || process.env.NEXT_PUBLIC_PERPLEXITY_API_KEY;
+    const apiKey = process.env.CLAUDE_API_KEY || process.env.NEXT_PUBLIC_CLAUDE_API_KEY;
     if (!apiKey) {
-      console.error("[API IA] PERPLEXITY_API_KEY não configurada");
+      console.error("[API IA] CLAUDE_API_KEY não configurada");
       return NextResponse.json(
         { erro: "Chave da API não configurada no servidor" },
         { status: 500 }
