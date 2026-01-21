@@ -186,11 +186,61 @@ export default function ProcessoDetailPage() {
             </Card>
           )}
 
+          {/* Formulário de Dados Manuais */}
+          {mostrarFormulario && processo.status === "concluido" && (
+            <FormularioDadosManuais
+              tipo={processo.tipo}
+              dadosExistentes={dadosProcessados}
+              onSave={async (dados) => {
+                try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  if (!session) {
+                    alert("Sessão expirada. Faça login novamente.");
+                    return;
+                  }
+
+                  const response = await fetch(`/api/job/${processoId}/atualizar-dados`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${session.access_token}`,
+                    },
+                    body: JSON.stringify({ dados }),
+                  });
+
+                  const result = await response.json();
+                  if (result.sucesso) {
+                    setDadosProcessados({ ...dadosProcessados, ...dados });
+                    setMostrarFormulario(false);
+                    alert("Dados atualizados com sucesso!");
+                  } else {
+                    alert(`Erro ao salvar: ${result.erro}`);
+                  }
+                } catch (error: any) {
+                  alert(`Erro ao salvar: ${error.message}`);
+                }
+              }}
+              onCancel={() => setMostrarFormulario(false)}
+            />
+          )}
+
           {/* Resultados do Processamento */}
           {processo.status === "concluido" && dadosProcessados && (
             <Card>
               <CardHeader>
-                <CardTitle>Resultados do Processamento</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Resultados do Processamento</CardTitle>
+                  {!mostrarFormulario && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setMostrarFormulario(true)}
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Editar Dados
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {processo.tipo === "regularizacao" && (
