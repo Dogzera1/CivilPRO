@@ -30,7 +30,7 @@ function instrucoesAntiMarkdown(): string {
     "2) Se precisar enumerar, use numeração simples em texto (ex: 1), 2), 3)) ou parágrafos; não use listas em Markdown.",
     "3) Use somente texto puro com quebras de linha normais.",
     "4) Não invente dados. Quando não for possível identificar, escreva exatamente: NAO IDENTIFICAVEL PELAS IMAGENS.",
-  ].join(\"\\n\");
+  ].join("\n");
 }
 
 /**
