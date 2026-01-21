@@ -135,7 +135,7 @@ export default function VendasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-white to-muted">
+    <div className="min-h-screen bg-background">
       <header className="border-b bg-white/70 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/">
@@ -163,44 +163,51 @@ export default function VendasPage() {
 
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
-        <div className="mb-16 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">
-              Engenharia Inteligente, Decisões Rápidas
-            </span>
-          </div>
-          <h1 className="mb-4 text-5xl font-bold tracking-tight">
-            Gere laudos técnicos profissionais em 10 minutos
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Automatize REURB, memoriais, vistorias e orçamentos com IA. Economize tempo, aumente sua produtividade e
-            mantenha padrão profissional (com revisão do responsável técnico).
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/signup">
-              <Button
-                size="lg"
-                onClick={() => track("cta_click", { cta: "hero_trial" })}
-              >
-                Experimente Grátis
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/novo-processo">
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => track("cta_click", { cta: "hero_demo" })}
-              >
-                Ver como funciona
-              </Button>
-            </Link>
-          </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-            <span>Conforme normas (ABNT) e legislação</span>
-            <span>5 processos grátis</span>
-            <span>Sem cartão no plano Free</span>
+        <div className="mb-16">
+          <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-background to-background px-6 py-12 text-center md:px-10 md:py-16">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+
+            <div className="relative">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">
+                  Engenharia Inteligente, Decisões Rápidas
+                </span>
+              </div>
+
+              <h1 className="mx-auto mb-4 max-w-4xl text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+                Gere laudos técnicos profissionais em 10 minutos
+              </h1>
+
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                Automatize REURB, memoriais, vistorias e orçamentos com IA. Economize tempo, aumente sua produtividade e
+                mantenha padrão profissional (com revisão do responsável técnico).
+              </p>
+
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link href="/signup">
+                  <Button size="lg" onClick={() => track("cta_click", { cta: "hero_trial" })}>
+                    Experimente Grátis
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/novo-processo">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => track("cta_click", { cta: "hero_demo" })}
+                  >
+                    Ver como funciona
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                <span>Conforme normas (ABNT) e legislação</span>
+                <span>5 processos grátis</span>
+                <span>Sem cartão no plano Free</span>
+              </div>
+            </div>
           </div>
         </div>
 
