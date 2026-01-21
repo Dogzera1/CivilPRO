@@ -136,24 +136,26 @@ export default function VendasPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-white/70 backdrop-blur-sm">
+      <header className="border-b border-border/50 bg-card/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/">
-            <Button variant="ghost">
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Voltar
             </Button>
           </Link>
-          <h1 className="text-xl font-bold">EngenhaAI</h1>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            EngenhaAI
+          </h1>
           {user ? (
             <Link href="/dashboard">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 Dashboard
               </Button>
             </Link>
           ) : (
             <Link href="/login">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 Entrar
               </Button>
             </Link>
