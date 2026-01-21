@@ -53,6 +53,14 @@ const PLANOS = {
     icon: Building2,
     cor: "default",
   },
+  admin: {
+    nome: "Admin (Teste)",
+    preco: "R$ 0",
+    limite: Infinity,
+    recursos: ["Sem limites", "Acesso total para testes", "Sem cobrança"],
+    icon: Crown,
+    cor: "default",
+  },
 };
 
 export default function ConfiguracoesPage() {
@@ -213,7 +221,9 @@ export default function ConfiguracoesPage() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">
-                {Object.entries(PLANOS).map(([key, plano]) => {
+                {Object.entries(PLANOS)
+                  .filter(([key]) => key !== "admin")
+                  .map(([key, plano]) => {
                   const Icon = plano.icon;
                   const isAtual = user.plano === key;
                   

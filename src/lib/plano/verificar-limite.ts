@@ -4,6 +4,7 @@ const LIMITES_PLANO = {
   free: 5,
   pro: Infinity,
   enterprise: Infinity,
+  admin: Infinity,
 };
 
 export async function verificarLimitePlano(

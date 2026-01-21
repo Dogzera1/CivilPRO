@@ -67,6 +67,18 @@ const PLANOS = {
     cor: "default",
     popular: false,
   },
+  // Admin é apenas para testes internos (não aparece na página)
+  admin: {
+    nome: "Admin (Teste)",
+    preco: "R$ 0",
+    precoNumero: 0,
+    limite: Infinity,
+    periodo: "",
+    recursos: ["Sem limites", "Acesso total para testes"],
+    icon: Crown,
+    cor: "default",
+    popular: false,
+  },
 };
 
 export default function VendasPage() {
@@ -167,7 +179,9 @@ export default function VendasPage() {
 
         {/* Planos */}
         <div className="grid gap-8 md:grid-cols-3 lg:gap-6">
-          {Object.entries(PLANOS).map(([key, plano]) => {
+          {Object.entries(PLANOS)
+            .filter(([key]) => key !== "admin")
+            .map(([key, plano]) => {
             const Icon = plano.icon;
             const isAtual = user?.plano === key;
             const isPopular = plano.popular;
