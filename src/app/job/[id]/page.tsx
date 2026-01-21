@@ -262,6 +262,164 @@ export default function ProcessoDetailPage() {
                   </>
                 )}
 
+                {processo.tipo === "planta_complementar" && (
+                  <>
+                    {dadosProcessados.cargas_por_ambiente && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Cargas por Ambiente</p>
+                        <div className="space-y-2">
+                          {Array.isArray(dadosProcessados.cargas_por_ambiente) && dadosProcessados.cargas_por_ambiente.map((carga: any, index: number) => (
+                            <div key={index} className="p-3 bg-muted rounded">
+                              <p className="font-semibold">{carga.ambiente}</p>
+                              <p className="text-xs text-muted-foreground">
+                                Iluminação: {carga.iluminacao_va} VA | TUGs: {carga.tug_quantidade} | TUEs: {carga.tue_quantidade} | Total: {carga.total_va} VA
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {dadosProcessados.circuitos && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Circuitos</p>
+                        <div className="space-y-2">
+                          {Array.isArray(dadosProcessados.circuitos) && dadosProcessados.circuitos.map((circuito: any, index: number) => (
+                            <div key={index} className="p-3 bg-muted rounded">
+                              <p className="font-semibold">C{circuito.numero} - {circuito.tipo}</p>
+                              <p className="text-xs text-muted-foreground">
+                                Potência: {circuito.potencia_va} VA | Proteção: {circuito.protecao_a}A | Condutor: {circuito.condutor_mm2}mm²
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {dadosProcessados.demanda_total && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Demanda Total</p>
+                        <p className="text-lg font-semibold">{dadosProcessados.demanda_total} VA</p>
+                      </div>
+                    )}
+                    {dadosProcessados.memorial_calculo && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Memorial de Cálculo</p>
+                        <div className="p-4 bg-muted rounded-lg">
+                          <p className="text-sm whitespace-pre-wrap">{dadosProcessados.memorial_calculo}</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {processo.tipo === "laudo" && (
+                  <>
+                    {dadosProcessados.objetivo && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Objetivo</p>
+                        <p className="text-sm">{dadosProcessados.objetivo}</p>
+                      </div>
+                    )}
+                    {dadosProcessados.metodologia && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Metodologia</p>
+                        <div className="p-4 bg-muted rounded-lg">
+                          <p className="text-sm whitespace-pre-wrap">{dadosProcessados.metodologia}</p>
+                        </div>
+                      </div>
+                    )}
+                    {dadosProcessados.analise && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Análise Técnica</p>
+                        <div className="p-4 bg-muted rounded-lg">
+                          <p className="text-sm whitespace-pre-wrap">{dadosProcessados.analise}</p>
+                        </div>
+                      </div>
+                    )}
+                    {dadosProcessados.conclusoes && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Conclusões</p>
+                        <div className="p-4 bg-muted rounded-lg">
+                          <p className="text-sm whitespace-pre-wrap">{dadosProcessados.conclusoes}</p>
+                        </div>
+                      </div>
+                    )}
+                    {dadosProcessados.recomendacoes && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Recomendações</p>
+                        <div className="p-4 bg-muted rounded-lg">
+                          <p className="text-sm whitespace-pre-wrap">{dadosProcessados.recomendacoes}</p>
+                        </div>
+                      </div>
+                    )}
+                    {dadosProcessados.laudo_completo && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Laudo Completo</p>
+                        <div className="p-4 bg-muted rounded-lg">
+                          <p className="text-sm whitespace-pre-wrap">{dadosProcessados.laudo_completo}</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {processo.tipo === "conformidade" && (
+                  <>
+                    {dadosProcessados.taxa_ocupacao && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Taxa de Ocupação</p>
+                        <div className="p-3 bg-muted rounded">
+                          <p className="text-sm">
+                            Calculada: {dadosProcessados.taxa_ocupacao.calculada}% | 
+                            Permitida: {dadosProcessados.taxa_ocupacao.permitida}% | 
+                            {dadosProcessados.taxa_ocupacao.conforme ? (
+                              <span className="text-green-600 font-semibold"> ✓ Conforme</span>
+                            ) : (
+                              <span className="text-red-600 font-semibold"> ✗ Não Conforme</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {dadosProcessados.recuos && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Recuos</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(dadosProcessados.recuos).map(([key, value]: [string, any]) => (
+                            <div key={key} className="p-2 bg-muted rounded">
+                              <p className="text-xs text-muted-foreground capitalize">{key.replace(/_/g, " ")}</p>
+                              <p className="font-semibold">
+                                {value.conforme ? (
+                                  <span className="text-green-600">✓ Conforme</span>
+                                ) : (
+                                  <span className="text-red-600">✗ Não Conforme</span>
+                                )}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {dadosProcessados.conformidade_geral !== undefined && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Conformidade Geral</p>
+                        <div className={`p-4 rounded-lg ${dadosProcessados.conformidade_geral ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                          <p className={`text-lg font-semibold ${dadosProcessados.conformidade_geral ? 'text-green-700' : 'text-red-700'}`}>
+                            {dadosProcessados.conformidade_geral ? '✓ CONFORME' : '✗ NÃO CONFORME'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {dadosProcessados.relatorio_completo && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Relatório Completo</p>
+                        <div className="p-4 bg-muted rounded-lg">
+                          <p className="text-sm whitespace-pre-wrap">{dadosProcessados.relatorio_completo}</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
                 {/* Botões para gerar PDF e Excel */}
                 <div className="pt-4 border-t space-y-2">
                   {/* PDF */}

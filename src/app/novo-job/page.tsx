@@ -16,6 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function NovoProcessoPage() {
   const [tipo, setTipo] = useState<TipoProcesso>("regularizacao");
+  const [subtipoPlanta, setSubtipoPlanta] = useState<"eletrica" | "hidraulica">("eletrica");
   const [files, setFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     cliente_nome: "",
@@ -158,9 +159,12 @@ export default function NovoProcessoPage() {
         body: JSON.stringify({
           tipo,
           fileUrls,
+          subtipo: tipo === "planta_complementar" ? subtipoPlanta : undefined,
           dadosCliente: {
+            cliente_nome: formData.cliente_nome,
             endereco: formData.endereco_obra,
             cidade: formData.cidade,
+            observacoes: formData.observacoes,
           },
         }),
       });
@@ -197,11 +201,27 @@ export default function NovoProcessoPage() {
         dadosExtrados.area_construida = dados.area_construida || 0;
         dadosExtrados.recuos = dados.recuos || {};
         dadosExtrados.memorial = dados.memorial || "";
+        dadosExtrados.taxa_ocupacao = dados.taxa_ocupacao;
+        dadosExtrados.pavimentos = dados.pavimentos;
+        dadosExtrados.tipo_edificacao = dados.tipo_edificacao;
+        dadosExtrados.conformidade = dados.conformidade;
       } else if (tipo === "orcamento") {
         dadosExtrados.quantidade_aco = dados.quantidade_aco || 0;
         dadosExtrados.quantidade_concreto = dados.quantidade_concreto || 0;
+        dadosExtrados.quantidade_blocos = dados.quantidade_blocos;
+        dadosExtrados.quantidade_telhas = dados.quantidade_telhas;
+        dadosExtrados.quantidade_portas = dados.quantidade_portas;
+        dadosExtrados.quantidade_janelas = dados.quantidade_janelas;
+        dadosExtrados.pontos_eletricos = dados.pontos_eletricos;
+        dadosExtrados.pontos_hidraulicos = dados.pontos_hidraulicos;
+        dadosExtrados.area_construida = dados.area_construida;
         dadosExtrados.valor_total = dados.valor_total || 0;
         dadosExtrados.detalhamento = dados.detalhamento || "";
+        dadosExtrados.quantitativos = dados.quantitativos;
+        dadosExtrados.cronograma = dados.cronograma;
+      } else {
+        // Para outros tipos, salvar todos os dados retornados
+        Object.assign(dadosExtrados, dados);
       }
 
       // Atualizar processo com resultado
@@ -268,6 +288,37 @@ export default function NovoProcessoPage() {
                   <TabsTrigger value="conformidade">Conformidade</TabsTrigger>
                 </TabsList>
               </Tabs>
+              
+              {/* Seleção de subtipo para plantas complementares */}
+              {tipo === "planta_complementar" && (
+                <div className="mt-4 space-y-2">
+                  <Label htmlFor="subtipo">Tipo de Planta Complementar</Label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="subtipo"
+                        value="eletrica"
+                        checked={subtipoPlanta === "eletrica"}
+                        onChange={(e) => setSubtipoPlanta(e.target.value as "eletrica" | "hidraulica")}
+                        className="w-4 h-4"
+                      />
+                      <span>Elétrica</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="subtipo"
+                        value="hidraulica"
+                        checked={subtipoPlanta === "hidraulica"}
+                        onChange={(e) => setSubtipoPlanta(e.target.value as "eletrica" | "hidraulica")}
+                        className="w-4 h-4"
+                      />
+                      <span>Hidráulica</span>
+                    </label>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -310,11 +361,23 @@ export default function NovoProcessoPage() {
                   )}
                   {tipo === "planta_complementar" && (
                     <>
-                      <p className="font-semibold">Para Planta Complementar, você precisa:</p>
+                      <p className="font-semibold">
+                        Para Planta Complementar {subtipoPlanta === "eletrica" ? "Elétrica" : "Hidráulica"}, você precisa:
+                      </p>
                       <ul className="list-disc list-inside space-y-1 text-sm">
-                        <li><strong>Planta Base</strong> (PDF, JPG ou PNG) - Obrigatório</li>
-                        <li><strong>Especificações Técnicas</strong> (PDF) - Recomendado</li>
-                        <li><strong>Plantas de Referência</strong> (PDF, JPG ou PNG) - Opcional</li>
+                        <li><strong>Planta Arquitetônica Base</strong> (PDF, JPG ou PNG) - Obrigatório</li>
+                        {subtipoPlanta === "eletrica" && (
+                          <>
+                            <li><strong>Especificações de Cargas</strong> (PDF, TXT) - Recomendado</li>
+                            <li><strong>Plantas de Instalações Existentes</strong> (PDF, JPG ou PNG) - Opcional</li>
+                          </>
+                        )}
+                        {subtipoPlanta === "hidraulica" && (
+                          <>
+                            <li><strong>Especificações de Pontos</strong> (PDF, TXT) - Recomendado</li>
+                            <li><strong>Plantas Hidráulicas Existentes</strong> (PDF, JPG ou PNG) - Opcional</li>
+                          </>
+                        )}
                       </ul>
                       <p className="text-xs text-muted-foreground mt-2">
                         📋 Formatos aceitos: PDF, JPG, PNG | Máximo: 5 arquivos | Tamanho máximo: 10MB por arquivo

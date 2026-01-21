@@ -3,6 +3,16 @@
  * Documentação: https://docs.perplexity.ai/
  */
 
+import {
+  gerarPromptRegularizacao,
+  gerarPromptOrcamento,
+  gerarPromptPlantaEletrica,
+  gerarPromptPlantaHidraulica,
+  gerarPromptLaudo,
+  gerarPromptConformidade,
+  DadosCliente,
+} from "./prompts";
+
 const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
 // Usar variável de ambiente do servidor (não expor no cliente)
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || process.env.NEXT_PUBLIC_PERPLEXITY_API_KEY || "";
@@ -71,32 +81,35 @@ export async function callPerplexity(
 export async function analisarPlantaRegularizacao(
   descricaoArquivo: string,
   endereco?: string,
-  cidade?: string
+  cidade?: string,
+  clienteNome?: string,
+  observacoes?: string
 ): Promise<{
   area_total: number;
   area_construida: number;
   recuos: Record<string, number>;
   memorial: string;
+  taxa_ocupacao?: number;
+  pavimentos?: number;
+  tipo_edificacao?: string;
+  conformidade?: {
+    conforme: boolean;
+    observacoes: string;
+  };
 }> {
-  const prompt = `Você é um engenheiro civil especialista em regularização de imóveis.
+  const dadosCliente: DadosCliente = {
+    cliente_nome: clienteNome,
+    endereco_obra: endereco,
+    cidade: cidade,
+    observacoes: observacoes,
+  };
 
-Analise a seguinte informação sobre uma planta/imóvel:
-${descricaoArquivo ? `Descrição do arquivo: ${descricaoArquivo}` : ""}
-${endereco ? `Endereço: ${endereco}` : ""}
-${cidade ? `Cidade: ${cidade}` : ""}
-
-Gere um relatório técnico em formato JSON com:
-1. area_total: área total do terreno em m² (número)
-2. area_construida: área construída em m² (número)
-3. recuos: objeto com recuos em metros (ex: {frontal: 5, lateral_esquerda: 3, lateral_direita: 3, fundos: 5})
-4. memorial: memorial descritivo completo em português brasileiro
-
-IMPORTANTE: Retorne APENAS um JSON válido, sem markdown, sem explicações adicionais.`;
+  const prompt = gerarPromptRegularizacao(descricaoArquivo, dadosCliente);
 
   const messages: PerplexityMessage[] = [
     {
       role: "system",
-      content: "Você é um engenheiro civil especialista. Sempre retorne JSON válido.",
+      content: "Você é um engenheiro civil especialista em regularização de imóveis. Sempre retorne JSON válido conforme solicitado.",
     },
     {
       role: "user",
@@ -121,6 +134,10 @@ IMPORTANTE: Retorne APENAS um JSON válido, sem markdown, sem explicações adic
       area_construida: parsed.area_construida || 0,
       recuos: parsed.recuos || {},
       memorial: parsed.memorial || "Memorial descritivo gerado pela IA.",
+      taxa_ocupacao: parsed.taxa_ocupacao,
+      pavimentos: parsed.pavimentos,
+      tipo_edificacao: parsed.tipo_edificacao,
+      conformidade: parsed.conformidade,
     };
   } catch (error) {
     // Se não conseguir parsear JSON, retornar valores padrão com memorial da resposta
@@ -135,31 +152,47 @@ IMPORTANTE: Retorne APENAS um JSON válido, sem markdown, sem explicações adic
 
 export async function gerarOrcamento(
   descricaoPlanta: string,
-  cidade?: string
+  cidade?: string,
+  clienteNome?: string,
+  observacoes?: string
 ): Promise<{
   quantidade_aco: number;
   quantidade_concreto: number;
+  quantidade_blocos?: number;
+  quantidade_telhas?: number;
+  quantidade_portas?: number;
+  quantidade_janelas?: number;
+  pontos_eletricos?: number;
+  pontos_hidraulicos?: number;
+  area_construida?: number;
   valor_total: number;
   detalhamento: string;
+  quantitativos?: Array<{
+    item: string;
+    unidade: string;
+    quantidade: number;
+    preco_unitario: number;
+    total: number;
+  }>;
+  cronograma?: Array<{
+    mes: number;
+    etapa: string;
+    valor: number;
+    acumulado: number;
+  }>;
 }> {
-  const prompt = `Você é um engenheiro civil especialista em orçamentos de obras.
+  const dadosCliente: DadosCliente = {
+    cliente_nome: clienteNome,
+    cidade: cidade,
+    observacoes: observacoes,
+  };
 
-Analise a seguinte informação sobre uma planta:
-${descricaoPlanta}
-${cidade ? `Cidade: ${cidade}` : ""}
-
-Gere um orçamento em formato JSON com:
-1. quantidade_aco: quantidade de aço em kg (número)
-2. quantidade_concreto: quantidade de concreto em m³ (número)
-3. valor_total: valor total estimado em R$ (número)
-4. detalhamento: texto detalhado do orçamento em português brasileiro
-
-IMPORTANTE: Retorne APENAS um JSON válido, sem markdown, sem explicações adicionais.`;
+  const prompt = gerarPromptOrcamento(descricaoPlanta, dadosCliente);
 
   const messages: PerplexityMessage[] = [
     {
       role: "system",
-      content: "Você é um engenheiro civil especialista em orçamentos. Sempre retorne JSON válido.",
+      content: "Você é um engenheiro civil especialista em orçamentos e quantitativos. Sempre retorne JSON válido conforme solicitado.",
     },
     {
       role: "user",
@@ -180,8 +213,17 @@ IMPORTANTE: Retorne APENAS um JSON válido, sem markdown, sem explicações adic
     return {
       quantidade_aco: parsed.quantidade_aco || 0,
       quantidade_concreto: parsed.quantidade_concreto || 0,
+      quantidade_blocos: parsed.quantidade_blocos,
+      quantidade_telhas: parsed.quantidade_telhas,
+      quantidade_portas: parsed.quantidade_portas,
+      quantidade_janelas: parsed.quantidade_janelas,
+      pontos_eletricos: parsed.pontos_eletricos,
+      pontos_hidraulicos: parsed.pontos_hidraulicos,
+      area_construida: parsed.area_construida,
       valor_total: parsed.valor_total || 0,
       detalhamento: parsed.detalhamento || "Orçamento gerado pela IA.",
+      quantitativos: parsed.quantitativos,
+      cronograma: parsed.cronograma,
     };
   } catch (error) {
     return {
@@ -190,5 +232,141 @@ IMPORTANTE: Retorne APENAS um JSON válido, sem markdown, sem explicações adic
       valor_total: 0,
       detalhamento: response || "Orçamento gerado pela IA.",
     };
+  }
+}
+
+/**
+ * Gera planta complementar elétrica
+ */
+export async function gerarPlantaEletrica(
+  descricaoPlanta: string,
+  dadosCliente: DadosCliente
+): Promise<any> {
+  const prompt = gerarPromptPlantaEletrica(descricaoPlanta, dadosCliente);
+
+  const messages: PerplexityMessage[] = [
+    {
+      role: "system",
+      content: "Você é um engenheiro eletricista especialista. Sempre retorne JSON válido conforme solicitado.",
+    },
+    {
+      role: "user",
+      content: prompt,
+    },
+  ];
+
+  const response = await callPerplexity(messages);
+  
+  try {
+    const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
+                     response.match(/```\s*([\s\S]*?)\s*```/) ||
+                     [null, response];
+    
+    const jsonStr = jsonMatch[1] || response;
+    return JSON.parse(jsonStr.trim());
+  } catch (error) {
+    return { erro: "Erro ao processar resposta", resposta_bruta: response };
+  }
+}
+
+/**
+ * Gera planta complementar hidráulica
+ */
+export async function gerarPlantaHidraulica(
+  descricaoPlanta: string,
+  dadosCliente: DadosCliente
+): Promise<any> {
+  const prompt = gerarPromptPlantaHidraulica(descricaoPlanta, dadosCliente);
+
+  const messages: PerplexityMessage[] = [
+    {
+      role: "system",
+      content: "Você é um engenheiro especialista em projetos hidrossanitários. Sempre retorne JSON válido conforme solicitado.",
+    },
+    {
+      role: "user",
+      content: prompt,
+    },
+  ];
+
+  const response = await callPerplexity(messages);
+  
+  try {
+    const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
+                     response.match(/```\s*([\s\S]*?)\s*```/) ||
+                     [null, response];
+    
+    const jsonStr = jsonMatch[1] || response;
+    return JSON.parse(jsonStr.trim());
+  } catch (error) {
+    return { erro: "Erro ao processar resposta", resposta_bruta: response };
+  }
+}
+
+/**
+ * Gera laudo técnico
+ */
+export async function gerarLaudo(
+  descricaoDocumentos: string,
+  dadosCliente: DadosCliente
+): Promise<any> {
+  const prompt = gerarPromptLaudo(descricaoDocumentos, dadosCliente);
+
+  const messages: PerplexityMessage[] = [
+    {
+      role: "system",
+      content: "Você é um engenheiro civil especialista em laudos técnicos. Sempre retorne JSON válido conforme solicitado.",
+    },
+    {
+      role: "user",
+      content: prompt,
+    },
+  ];
+
+  const response = await callPerplexity(messages);
+  
+  try {
+    const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
+                     response.match(/```\s*([\s\S]*?)\s*```/) ||
+                     [null, response];
+    
+    const jsonStr = jsonMatch[1] || response;
+    return JSON.parse(jsonStr.trim());
+  } catch (error) {
+    return { erro: "Erro ao processar resposta", resposta_bruta: response };
+  }
+}
+
+/**
+ * Verifica conformidade urbanística
+ */
+export async function verificarConformidade(
+  descricaoDocumentos: string,
+  dadosCliente: DadosCliente
+): Promise<any> {
+  const prompt = gerarPromptConformidade(descricaoDocumentos, dadosCliente);
+
+  const messages: PerplexityMessage[] = [
+    {
+      role: "system",
+      content: "Você é um engenheiro civil especialista em conformidade urbanística. Sempre retorne JSON válido conforme solicitado.",
+    },
+    {
+      role: "user",
+      content: prompt,
+    },
+  ];
+
+  const response = await callPerplexity(messages);
+  
+  try {
+    const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
+                     response.match(/```\s*([\s\S]*?)\s*```/) ||
+                     [null, response];
+    
+    const jsonStr = jsonMatch[1] || response;
+    return JSON.parse(jsonStr.trim());
+  } catch (error) {
+    return { erro: "Erro ao processar resposta", resposta_bruta: response };
   }
 }

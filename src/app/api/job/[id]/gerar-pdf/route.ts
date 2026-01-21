@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { gerarPDFRegularizacao } from "@/lib/pdf/gerar-pdf-regularizacao";
 import { gerarPDFOrcamento } from "@/lib/pdf/gerar-pdf-orcamento";
+import { gerarPDFLaudo } from "@/lib/pdf/gerar-pdf-laudo";
+import { gerarPDFConformidade } from "@/lib/pdf/gerar-pdf-conformidade";
 
 export async function POST(
   request: NextRequest,
@@ -57,6 +59,20 @@ export async function POST(
         cliente_nome: processo.cliente_nome,
         cidade: processo.cidade,
         created_at: processo.created_at,
+      });
+    } else if (processo.tipo === "laudo") {
+      pdfDoc = gerarPDFLaudo({
+        ...dadosProcessados,
+        cliente_nome: processo.cliente_nome,
+        endereco_obra: processo.endereco_obra,
+        cidade: processo.cidade,
+      });
+    } else if (processo.tipo === "conformidade") {
+      pdfDoc = gerarPDFConformidade({
+        ...dadosProcessados,
+        cliente_nome: processo.cliente_nome,
+        endereco_obra: processo.endereco_obra,
+        cidade: processo.cidade,
       });
     } else {
       return NextResponse.json(

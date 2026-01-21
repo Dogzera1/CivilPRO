@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { analisarPlantaRegularizacao, gerarOrcamento } from "@/lib/ia/perplexity-client";
+import {
+  analisarPlantaRegularizacao,
+  gerarOrcamento,
+  gerarPlantaEletrica,
+  gerarPlantaHidraulica,
+  gerarLaudo,
+  verificarConformidade,
+} from "@/lib/ia/perplexity-client";
+import { DadosCliente } from "@/lib/ia/prompts";
 
 export const runtime = 'nodejs'; // Garantir que roda no Node.js
 
@@ -23,9 +31,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { tipo, fileUrls, dadosCliente } = body;
+    const { tipo, fileUrls, dadosCliente, subtipo } = body;
 
-    console.log("[API IA] Processando:", { tipo, fileUrls: fileUrls?.length, dadosCliente });
+    console.log("[API IA] Processando:", { tipo, subtipo, fileUrls: fileUrls?.length, dadosCliente });
 
     if (!tipo) {
       return NextResponse.json(
@@ -49,17 +57,47 @@ export async function POST(request: NextRequest) {
     try {
       console.log("[API IA] Iniciando processamento do tipo:", tipo);
       
+      const listaArquivos = fileUrls?.map((url: string, index: number) => 
+        `Arquivo ${index + 1}: ${url.split("/").pop()}`
+      ).join("\n") || "";
+
+      const dados: DadosCliente = {
+        cliente_nome: dadosCliente?.cliente_nome,
+        endereco_obra: dadosCliente?.endereco,
+        cidade: dadosCliente?.cidade,
+        observacoes: dadosCliente?.observacoes,
+      };
+
       if (tipo === "regularizacao") {
         resultado = await analisarPlantaRegularizacao(
-          fileUrls?.join(", ") || "",
-          dadosCliente?.endereco,
-          dadosCliente?.cidade
+          listaArquivos,
+          dados.endereco_obra,
+          dados.cidade,
+          dados.cliente_nome,
+          dados.observacoes
         );
       } else if (tipo === "orcamento") {
         resultado = await gerarOrcamento(
-          fileUrls?.join(", ") || "",
-          dadosCliente?.cidade
+          listaArquivos,
+          dados.cidade,
+          dados.cliente_nome,
+          dados.observacoes
         );
+      } else if (tipo === "planta_complementar") {
+        if (subtipo === "eletrica") {
+          resultado = await gerarPlantaEletrica(listaArquivos, dados);
+        } else if (subtipo === "hidraulica") {
+          resultado = await gerarPlantaHidraulica(listaArquivos, dados);
+        } else {
+          return NextResponse.json(
+            { erro: `Subtipo de planta complementar não especificado. Use 'eletrica' ou 'hidraulica'` },
+            { status: 400 }
+          );
+        }
+      } else if (tipo === "laudo") {
+        resultado = await gerarLaudo(listaArquivos, dados);
+      } else if (tipo === "conformidade") {
+        resultado = await verificarConformidade(listaArquivos, dados);
       } else {
         return NextResponse.json(
           { erro: `Tipo de processamento não suportado: ${tipo}` },
