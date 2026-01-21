@@ -72,6 +72,7 @@ Vá em **Settings > Environment Variables** e adicione:
 
 ```env
 # Cakto
+NEXT_PUBLIC_CAKTO_CHECKOUT_URL=https://pay.cakto.com.br
 NEXT_PUBLIC_CAKTO_API_URL=https://api.cakto.com.br
 NEXT_PUBLIC_CAKTO_PUBLIC_KEY=sua-chave-publica-aqui
 CAKTO_WEBHOOK_SECRET=seu-secret-webhook-aqui
@@ -88,6 +89,7 @@ NEXT_PUBLIC_APP_URL=https://civilai-pro.vercel.app
 
 ```env
 # Cakto
+NEXT_PUBLIC_CAKTO_CHECKOUT_URL=https://pay.cakto.com.br
 NEXT_PUBLIC_CAKTO_API_URL=https://api.cakto.com.br
 NEXT_PUBLIC_CAKTO_PUBLIC_KEY=sua-chave-publica-aqui
 CAKTO_WEBHOOK_SECRET=seu-secret-webhook-aqui

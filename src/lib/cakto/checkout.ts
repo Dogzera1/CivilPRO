@@ -3,7 +3,12 @@
  * Documentação: https://docs.cakto.com.br (ou URL da documentação real)
  */
 
-const CAKTO_BASE_URL = process.env.NEXT_PUBLIC_CAKTO_API_URL || "https://pay.cakto.com.br";
+// URL base do checkout (página de pagamento)
+// Mantém compatibilidade com NEXT_PUBLIC_CAKTO_API_URL (antigo), mas o recomendado é usar NEXT_PUBLIC_CAKTO_CHECKOUT_URL.
+const CAKTO_BASE_URL =
+  process.env.NEXT_PUBLIC_CAKTO_CHECKOUT_URL ||
+  process.env.NEXT_PUBLIC_CAKTO_API_URL ||
+  "https://pay.cakto.com.br";
 const CAKTO_PUBLIC_KEY = process.env.NEXT_PUBLIC_CAKTO_PUBLIC_KEY || "";
 
 export interface CaktoProduct {

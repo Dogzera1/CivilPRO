@@ -39,6 +39,7 @@ Adicione no `.env.local`:
 
 ```env
 # Cakto
+NEXT_PUBLIC_CAKTO_CHECKOUT_URL=https://pay.cakto.com.br
 NEXT_PUBLIC_CAKTO_API_URL=https://api.cakto.com.br
 NEXT_PUBLIC_CAKTO_PUBLIC_KEY=sua-chave-publica-aqui
 CAKTO_WEBHOOK_SECRET=seu-secret-do-webhook-aqui
