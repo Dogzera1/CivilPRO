@@ -7,9 +7,10 @@ import { Processo, Job } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Download, FileText, Image as ImageIcon, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, FileText, Image as ImageIcon, AlertCircle, CheckCircle2, Loader2, Edit } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import { FormularioDadosManuais } from "@/components/formulario-dados-manuais";
 
 const tipoLabels: Record<string, string> = {
   regularizacao: "Regularização",
@@ -28,6 +29,7 @@ export default function ProcessoDetailPage() {
   const [processo, setProcesso] = useState<Processo | null>(null);
   const [loading, setLoading] = useState(true);
   const [dadosProcessados, setDadosProcessados] = useState<any>(null);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
     const loadJob = async () => {
